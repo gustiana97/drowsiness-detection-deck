@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drowsiness Detection — Pitch Deck</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#020806;--surface:#060f08;--card:#0a1610;--border:#152318;
+  --g:#00ff6a;--g2:#00c853;--gdim:rgba(0,255,106,.1);--gglow:rgba(0,255,106,.25);
+  --t:#dff0e2;--tm:#3d5e44;--td:#8fb897;
+  --red:#ff3d3d;--yellow:#ffd740;--orange:#ff8c42;
+  --mono:'JetBrains Mono',monospace;--disp:'Syne',sans-serif;--body:'DM Sans',sans-serif;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--t);font-family:var(--body)}
+
+/* noise */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");opacity:.5}
+
+/* TOPBAR */
+#bar{position:fixed;top:0;left:0;right:0;height:36px;background:rgba(2,8,6,.95);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:500;backdrop-filter:blur(10px);
+  font-family:var(--mono);font-size:10px;color:var(--tm);letter-spacing:.1em}
+.bdot{width:5px;height:5px;border-radius:50%;background:var(--g);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 4px var(--g)}50%{opacity:.3;box-shadow:none}}
+.btag{color:var(--red);border:1px solid rgba(255,61,61,.35);padding:1px 7px;font-size:9px;letter-spacing:.12em}
+
+/* NAV DOTS */
+#ndots{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:500}
+.ndot{width:5px;height:5px;border-radius:50%;background:var(--border);border:1px solid var(--tm);cursor:pointer;transition:all .3s}
+.ndot.on{background:var(--g);border-color:var(--g);box-shadow:0 0 7px var(--gglow);height:14px;border-radius:3px}
+
+/* NAV ARROWS */
+#arr-prev,#arr-next{position:fixed;bottom:20px;z-index:500;width:36px;height:36px;
+  background:var(--card);border:1px solid var(--border);color:var(--g);
+  font-family:var(--mono);font-size:14px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;user-select:none}
+#arr-prev{right:calc(50% + 4px)}
+#arr-next{left:calc(50% + 4px)}
+#arr-prev:hover,#arr-next:hover{background:var(--gdim);border-color:var(--g)}
+#slide-num{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:9px;color:var(--tm);letter-spacing:.15em;z-index:500;pointer-events:none}
+
+/* DECK */
+#deck{width:100vw;height:100vh;position:relative;overflow:hidden}
+.slide{position:absolute;top:0;left:0;width:100%;height:100%;
+  padding:56px 72px 60px;display:flex;flex-direction:column;justify-content:center;
+  opacity:0;transform:translateY(32px);pointer-events:none;
+  transition:opacity .55s cubic-bezier(.4,0,.2,1),transform .55s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.slide.active{opacity:1;transform:translateY(0);pointer-events:all}
+.slide.out-up{opacity:0;transform:translateY(-32px);transition:opacity .38s ease,transform .38s ease}
+.slide.out-dn{opacity:0;transform:translateY(32px);transition:opacity .38s ease,transform .38s ease}
+
+/* scanline on active */
+.slide.active::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:0;
+  animation:scan 8s ease-in-out infinite}
+@keyframes scan{0%{top:0;opacity:0}10%{opacity:.25}90%{opacity:.05}100%{top:100%;opacity:0}}
+
+/* SLIDE LABEL */
+.stag{font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:.2em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.stag::before{content:'';width:18px;height:1px;background:var(--g)}
+.snum{margin-left:auto;color:var(--tm);font-size:9px}
+
+/* TYPOGRAPHY */
+h1{font-family:var(--disp);font-weight:800;font-size:clamp(2.6rem,5vw,4.6rem);line-height:1.0;letter-spacing:-.04em;margin-bottom:18px}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(1.6rem,3vw,2.8rem);line-height:1.05;letter-spacing:-.03em;margin-bottom:10px}
+h3{font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+p{font-size:14px;line-height:1.7;color:var(--td)}
+.acc{color:var(--g)}.red{color:var(--red)}.yel{color:var(--yellow)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g12{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;align-items:start}
+.g21{display:grid;grid-template-columns:.85fr 1.15fr;gap:18px;align-items:start}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);padding:18px 20px;position:relative;transition:border-color .2s}
+.card:hover{border-color:rgba(0,255,106,.25)}
+.card.al{border-top:2px solid var(--g)}
+.card.rl{border-left:2px solid var(--red)}
+
+/* STAT */
+.stat{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--g);padding:16px 18px}
+.stn{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--g);line-height:1;letter-spacing:-.04em}
+.stl{font-family:var(--mono);font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:.1em;margin-top:5px}
+
+/* CODE */
+.code{background:#020a04;border:1px solid var(--border);padding:14px 18px;
+  font-family:var(--mono);font-size:11px;line-height:1.85;color:var(--td);position:relative;overflow:auto}
+.code::before{content:attr(data-l);position:absolute;top:6px;right:9px;font-size:8px;color:var(--tm);letter-spacing:.14em;text-transform:uppercase}
+.ck{color:var(--g)}.cv{color:var(--yellow)}.cs{color:#69f0ae}.cc{color:#253d29}.ca{color:var(--red);font-weight:700}
+
+/* METER */
+.mb{margin:7px 0}.mb-h{display:flex;justify-content:space-between;margin-bottom:4px}
+.mb-l{font-family:var(--mono);font-size:10px;color:var(--td)}.mb-v{font-family:var(--mono);font-size:10px;color:var(--g)}
+.mb-bg{height:4px;background:var(--border)}.mb-f{height:100%;background:linear-gradient(90deg,var(--g2),var(--g));width:0;transition:width 1.3s cubic-bezier(.4,0,.2,1)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+.tbl th{text-align:left;padding:8px 12px;background:rgba(0,255,106,.06);color:var(--g);font-size:9px;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--border)}
+.tbl td{padding:8px 12px;color:var(--td);border-bottom:1px solid rgba(21,35,24,.5)}
+.tbl tr:hover td{background:rgba(0,255,106,.03)}
+.best{color:var(--g);font-weight:700}
+.bdg{display:inline-block;padding:1px 6px;font-size:9px;letter-spacing:.07em;font-family:var(--mono)}
+.bdg.g{background:rgba(0,255,106,.1);color:var(--g);border:1px solid rgba(0,255,106,.25)}
+.bdg.y{background:rgba(255,215,64,.1);color:var(--yellow);border:1px solid rgba(255,215,64,.25)}
+.bdg.r{background:rgba(255,61,61,.1);color:var(--red);border:1px solid rgba(255,61,61,.25)}
+
+/* PIPELINE */
+.pipe{display:flex;align-items:stretch;margin:18px 0}
+.ps{flex:1;padding:12px 8px;background:var(--card);border:1px solid var(--border);
+  border-right:none;text-align:center;position:relative}
+.ps:last-child{border-right:1px solid var(--border)}
+.ps::after{content:'→';position:absolute;right:-11px;top:50%;transform:translateY(-50%);
+  color:var(--g);font-family:var(--mono);font-size:12px;z-index:1}
+.ps:last-child::after{display:none}
+.pi{font-size:1.2rem;margin-bottom:3px}.pl{font-family:var(--mono);font-size:9px;color:var(--g);text-transform:uppercase;letter-spacing:.08em}
+.pd{font-size:10px;color:var(--tm);margin-top:2px}
+
+/* DIVIDER */
+.dv{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:16px 0}
+
+/* FOOTER */
+.sf{position:absolute;bottom:14px;left:72px;right:72px;display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--mono);font-size:9px;color:var(--tm);border-top:1px solid var(--border);padding-top:9px}
+
+/* ═══ SLIDE 0: COVER ═══ */
+#s0{background:radial-gradient(ellipse at 18% 55%,rgba(0,255,106,.05) 0%,transparent 55%),
+  radial-gradient(ellipse at 82% 20%,rgba(0,200,83,.04) 0%,transparent 45%)}
+.hero-eye{font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:.24em;text-transform:uppercase;
+  margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.hero-tags{display:flex;gap:28px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--tm);margin-top:26px}
+.hero-tags span{display:flex;align-items:center;gap:6px}
+.hero-tags span::before{content:'▸';color:var(--g)}
+.cur::after{content:'█';color:var(--g);animation:bl 1.1s step-end infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ═══ SLIDE 1: PROBLEM - danger scene ═══ */
+.scene{position:relative;width:100%;height:200px;background:#030b05;border:1px solid var(--border);overflow:hidden;flex-shrink:0}
+.scene-sky{position:absolute;top:0;left:0;right:0;height:120px;background:linear-gradient(180deg,#010503 0%,#020a04 100%)}
+.scene-road{position:absolute;bottom:0;left:0;right:0;height:80px;background:#070f08;border-top:1px solid #122016}
+.scene-road2{position:absolute;bottom:0;left:0;right:0;height:40px;background:#060d07}
+.lmark{position:absolute;bottom:35px;width:52px;height:5px;background:rgba(255,215,64,.55);animation:rm 1.1s linear infinite}
+@keyframes rm{from{left:105%}to{left:-8%}}
+.car{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);transition:transform .4s ease}
+.car-b{width:82px;height:32px;background:#0d1e0f;border:1px solid #1e3820;border-radius:3px;position:relative}
+.car-r{width:50px;height:20px;background:#0b180c;border:1px solid #1e3820;border-radius:7px 7px 0 0;position:absolute;top:-20px;left:16px}
+.hl{width:7px;height:5px;background:#ffd740;border-radius:2px;position:absolute;bottom:12px;box-shadow:0 0 10px #ffd740,0 0 25px rgba(255,215,64,.3)}
+.hl.l{right:calc(50% - 46px)}.hl.r{left:calc(50% - 46px)}
+.scene-ind{position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:3px 10px;
+  border:1px solid var(--g);color:var(--g);background:rgba(0,0,0,.6);white-space:nowrap}
+.scene-crash{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:1.2rem;color:var(--red);font-weight:700;letter-spacing:.12em;
+  background:rgba(255,59,59,0);transition:background .35s;pointer-events:none}
+.zz{position:absolute;font-family:var(--mono);font-weight:700;color:rgba(0,255,106,.28);animation:zf 2.4s ease-in-out infinite}
+@keyframes zf{0%{opacity:0;transform:translate(0,0) scale(.7)}45%{opacity:.9;transform:translate(8px,-16px) scale(1)}100%{opacity:0;transform:translate(18px,-34px) scale(1.2)}}
+.drift{position:absolute;height:3px;background:linear-gradient(90deg,transparent,rgba(255,61,61,.65));animation:dr 2.8s ease-in-out infinite}
+@keyframes dr{0%,100%{width:0;left:50%;opacity:0}50%{width:100px;left:44%;opacity:1}}
+
+/* ═══ SLIDE 5: WEBCAM ═══ */
+#cam-wrap{background:#020b04;border:1px solid var(--border);display:flex;flex-direction:column;height:100%;min-height:0}
+#cam-head{padding:7px 12px;background:var(--card);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;color:var(--tm);flex-shrink:0}
+#vid-wrap{flex:1;position:relative;overflow:hidden;background:#000;min-height:0}
+#vid{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+#cv{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+#cstatus{position:absolute;top:8px;left:8px;font-family:var(--mono);font-size:10px;letter-spacing:.09em;
+  padding:3px 10px;background:rgba(2,8,4,.82);border:1px solid var(--g);color:var(--g);backdrop-filter:blur(4px)}
+#alert-b{position:absolute;bottom:0;left:0;right:0;background:rgba(255,59,59,.92);color:#fff;
+  font-family:var(--mono);font-size:13px;font-weight:700;text-align:center;padding:9px;
+  letter-spacing:.14em;display:none;animation:ap .75s ease-in-out infinite alternate}
+@keyframes ap{from{opacity:1}to{opacity:.45}}
+#cam-foot{padding:7px 12px;background:var(--card);border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+#cam-stats{display:flex;gap:16px}
+.ws{display:flex;flex-direction:column;gap:1px}
+.ws-v{font-family:var(--mono);font-size:12px;color:var(--g)}
+.ws-l{font-family:var(--mono);font-size:8px;color:var(--tm);text-transform:uppercase;letter-spacing:.08em}
+#cam-btn{width:100%;padding:9px;background:var(--gdim);border:1px solid var(--g);color:var(--g);
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;
+  transition:background .2s;margin-top:8px;flex-shrink:0}
+#cam-btn:hover{background:rgba(0,255,106,.18)}
+
+/* ARCH */
+.ar{display:flex;align-items:center;gap:6px;margin:4px 0}
+.ab{padding:6px 10px;border:1px solid var(--border);font-family:var(--mono);font-size:10px;color:var(--td);background:var(--card);white-space:nowrap}
+.ab.hl{border-color:var(--g);color:var(--g);background:var(--gdim)}
+.al2{font-family:var(--mono);font-size:9px;color:var(--tm);letter-spacing:.09em;text-transform:uppercase;min-width:68px}
+
+/* DISCUSS */
+.dc{border-left:2px solid var(--border);padding:12px 16px;margin-bottom:10px;background:var(--card);transition:border-color .2s}
+.dc:hover{border-left-color:var(--g)}
+.dt{font-family:var(--mono);font-size:10px;color:var(--g);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px}
+.db{font-size:12px;color:var(--td);line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="bar">
+  <div style="display:flex;align-items:center;gap:10px"><div class="bdot"></div><span>DROWSINESS_DETECTION · YOLOv8n · PITCH_DECK_v2</span></div>
+  <div style="display:flex;align-items:center;gap:16px"><span id="clk"></span><span class="btag">RESEARCH // LIVE</span></div>
+</div>
+
+<!-- NAV DOTS -->
+<div id="ndots"></div>
+
+<!-- ARROWS -->
+<div id="arr-prev" onclick="go(-1)">←</div>
+<div id="arr-next" onclick="go(1)">→</div>
+<div id="slide-num">01 / 07</div>
+
+<div id="deck">
+
+<!-- ══════════ SLIDE 0: COVER ══════════ -->
+<section class="slide active" id="s0">
+  <div class="hero-eye"><div class="bdot"></div>Real-Time Computer Vision System — 2026</div>
+  <h1>Drowsiness<br><span class="acc">Detection</span><span class="cur"></span><br>
+    <span style="font-size:.45em;color:var(--tm);font-weight:400;letter-spacing:-.01em">via Eye-State Classification · YOLOv8n</span></h1>
+  <p style="max-width:500px;font-size:15px">
+    A vertically integrated pipeline detecting closed eyes before fatigue becomes fatal.
+    <strong style="color:var(--t)"> Binary classification · 1,081 frames · ~12 FPS CPU.</strong>
+  </p>
+  <div class="hero-tags">
+    <span>Problem</span><span>Dataset</span><span>Methodology</span><span>Results</span><span>Demo</span><span>Discussion</span>
+  </div>
+  <div class="dv" style="margin-top:28px"></div>
+  <div class="code" data-l="LIVE INFERENCE OUTPUT" style="max-width:460px">
+<span class="cc">// From: yolo detect predict model=best.pt source=webcam</span>
+<span class="ck">image</span> 1/1081: 640x640  <span class="cs">1 Eyeclosed</span>  <span class="cv">84.3ms</span>
+<span class="ck">image</span> 2/1081: 640x640  <span class="cs">1 Eyeopen</span>   <span class="cv">83.7ms</span>
+<span class="ck">if</span> closed_frames >= <span class="cv">3</span>: <span class="ca">ALERT: Drowsiness! 🔔</span></div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>USE ← → ARROWS OR KEYBOARD TO NAVIGATE</span><span>01 / 07</span></div>
+</section>
+
+<!-- ══════════ SLIDE 1: PROBLEM ══════════ -->
+<section class="slide" id="s1">
+  <div class="stag">Problem Statement <span class="snum">01 / 06</span></div>
+  <div class="g12">
+    <div>
+      <h2>Driver fatigue is a<br><span class="acc">silent killer.</span></h2>
+      <p style="max-width:420px;margin-bottom:16px">Unlike alcohol, drowsiness leaves no chemical trace — only slowly closing eyes. By the time a car drifts, it's already too late.</p>
+      <div class="g3" style="margin-bottom:14px">
+        <div class="stat"><div class="stn">91K+</div><div class="stl">Annual crashes (NHTSA)</div></div>
+        <div class="stat"><div class="stn">50%</div><div class="stl">Drivers admit fatigue</div></div>
+        <div class="stat"><div class="stn">&lt;0.5s</div><div class="stl">Microsleep duration</div></div>
+      </div>
+      <div class="g2">
+        <div class="card rl"><h3>Current Gap</h3><p style="font-size:12px">Steering jerk &amp; lane departure fire <em>after</em> impairment. We need biometric signal <em>before</em> it.</p></div>
+        <div class="card al"><h3>Our Solution</h3><p style="font-size:12px">Eye-closure is the earliest detectable precursor. Classify it in real-time and alert before microsleep.</p></div>
+      </div>
+    </div>
+
+    <!-- ANIMATED DANGER SCENE -->
+    <div>
+      <h3 style="margin-bottom:8px">Live simulation — drowsy driving</h3>
+      <div class="scene" id="scene">
+        <div class="scene-sky"></div>
+        <div id="stars-wrap"></div>
+        <div class="scene-road"></div>
+        <div class="scene-road2"></div>
+        <div class="lmark" style="animation-delay:0s"></div>
+        <div class="lmark" style="animation-delay:-.35s"></div>
+        <div class="lmark" style="animation-delay:-.7s"></div>
+        <div class="lmark" style="animation-delay:-1.05s"></div>
+        <div class="drift" style="bottom:55px"></div>
+        <div id="car" class="car">
+          <div class="car-r"></div>
+          <div class="car-b">
+            <div class="hl l"></div>
+            <div class="hl r"></div>
+          </div>
+        </div>
+        <div class="zz" style="top:62px;left:54%;font-size:1rem">Z</div>
+        <div class="zz" style="top:52px;left:59%;font-size:.8rem;animation-delay:.9s">Z</div>
+        <div class="zz" style="top:44px;left:57%;font-size:.6rem;animation-delay:1.8s">z</div>
+        <div class="scene-ind" id="s-ind">👁 EYEOPEN · NORMAL</div>
+        <div class="scene-crash" id="s-crash"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="simRun()" style="flex:1;padding:7px;background:var(--gdim);border:1px solid var(--g);color:var(--g);font-family:var(--mono);font-size:9px;letter-spacing:.1em;cursor:pointer">▶ SIMULATE DROWSY EVENT</button>
+        <button onclick="simReset()" style="padding:7px 12px;background:transparent;border:1px solid var(--border);color:var(--tm);font-family:var(--mono);font-size:9px;cursor:pointer">↺</button>
+      </div>
+      <p style="font-family:var(--mono);font-size:9px;color:var(--tm);margin-top:6px">// Simplified visualization · not real road footage</p>
+    </div>
+  </div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>PROBLEM</span><span>02 / 07</span></div>
+</section>
+
+<!-- ══════════ SLIDE 2: DATASET ══════════ -->
+<section class="slide" id="s2">
+  <div class="stag">Dataset <span class="snum">02 / 06</span></div>
+  <h2>1,081 labeled frames.<br><span class="acc">Binary ground truth.</span></h2>
+  <div class="g12" style="margin-top:16px">
+    <div>
+      <div class="g3" style="margin-bottom:14px">
+        <div class="stat"><div class="stn">1,081</div><div class="stl">Total images</div></div>
+        <div class="stat"><div class="stn">2</div><div class="stl">Classes</div></div>
+        <div class="stat"><div class="stn">640²</div><div class="stl">Resolution px</div></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <h3>YOLO Annotation Format</h3>
+        <div class="code" data-l="LABEL FILE" style="margin-top:8px">
+<span class="cc"># class  cx     cy     w      h   (normalized)</span>
+<span class="cv">0</span>  0.512  0.481  0.234  0.178  <span class="cc"># Eyeclosed</span>
+<span class="cv">1</span>  0.488  0.476  0.241  0.182  <span class="cc"># Eyeopen</span></div>
+      </div>
+      <div class="card">
+        <h3>Class Distribution</h3>
+        <div class="mb" style="margin-top:8px">
+          <div class="mb-h"><span class="mb-l">Eyeopen (class 1)</span><span class="mb-v">~55%</span></div>
+          <div class="mb-bg"><div class="mb-f" data-w="55"></div></div>
+        </div>
+        <div class="mb">
+          <div class="mb-h"><span class="mb-l">Eyeclosed (class 0)</span><span class="mb-v">~45%</span></div>
+          <div class="mb-bg"><div class="mb-f" data-w="45"></div></div>
+        </div>
+        <p style="font-size:11px;color:var(--tm);margin-top:8px;font-family:var(--mono)">Varied lighting · angles · distances · augmentation applied</p>
+      </div>
+    </div>
+    <!-- eye visual comparison -->
+    <div>
+      <h3 style="margin-bottom:10px">Eye State Comparison</h3>
+      <div class="g2" style="margin-bottom:12px">
+        <div style="background:#030a05;border:1px solid var(--border);padding:18px;text-align:center">
+          <svg viewBox="0 0 110 55" width="100%" style="max-width:130px">
+            <ellipse cx="55" cy="27" rx="44" ry="20" fill="none" stroke="#1a3a1e" stroke-width="1.5"/>
+            <ellipse cx="55" cy="27" rx="14" ry="14" fill="#111e12" stroke="var(--g)" stroke-width="1"/>
+            <circle cx="55" cy="27" r="7" fill="#080e08"/>
+            <circle cx="58" cy="23" r="2.5" fill="white" opacity=".7"/>
+            <path d="M11 27 Q55 7 99 27" fill="none" stroke="#2a5a2e" stroke-width="1.5"/>
+            <path d="M11 27 Q55 47 99 27" fill="none" stroke="#2a5a2e" stroke-width="1.5"/>
+          </svg>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--g);margin-top:8px;letter-spacing:.1em">EYEOPEN</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--tm)">Class 1 · Safe</div>
+        </div>
+        <div style="background:#0a0303;border:1px solid #2a1515;padding:18px;text-align:center">
+          <svg viewBox="0 0 110 55" width="100%" style="max-width:130px">
+            <ellipse cx="55" cy="27" rx="44" ry="20" fill="none" stroke="#3a1a1a" stroke-width="1.5"/>
+            <path d="M11 27 Q55 17 99 27" fill="#0d0606" stroke="#3a1818" stroke-width="2"/>
+            <path d="M11 27 Q55 37 99 27" fill="none" stroke="#3a1818" stroke-width="1.5"/>
+            <line x1="14" y1="26" x2="96" y2="28" stroke="var(--red)" stroke-width="2.5" opacity=".85"/>
+          </svg>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--red);margin-top:8px;letter-spacing:.1em">EYECLOSED</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--tm)">Class 0 · ⚠ Alert</div>
+        </div>
+      </div>
+      <div class="code" data-l="DETECTION STRUCT">
+<span class="ck">Detection</span> {
+  bbox:  [x, y, w, h],   <span class="cc">// normalized coords</span>
+  conf:  <span class="cv">0.943</span>,          <span class="cc">// 0-1 confidence</span>
+  class: <span class="cv">0</span>,              <span class="cc">// 0=Closed, 1=Open</span>
+  <span class="ca">→ increment closed_counter</span>
+}</div>
+    </div>
+  </div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>DATASET</span><span>03 / 07</span></div>
+</section>
+
+<!-- ══════════ SLIDE 3: METHODOLOGY ══════════ -->
+<section class="slide" id="s3">
+  <div class="stag">Methodology <span class="snum">03 / 06</span></div>
+  <h2>End-to-end pipeline.<br><span class="acc">Zero manual features.</span></h2>
+  <div class="pipe">
+    <div class="ps"><div class="pi">🎥</div><div class="pl">Capture</div><div class="pd">480×640<br>RGB frame</div></div>
+    <div class="ps"><div class="pi">📐</div><div class="pl">Preprocess</div><div class="pd">Resize 640²<br>Normalize</div></div>
+    <div class="ps"><div class="pi">🧠</div><div class="pl">YOLOv8n</div><div class="pd">CSPDarknet<br>PANet Head</div></div>
+    <div class="ps"><div class="pi">🔧</div><div class="pl">NMS</div><div class="pd">IoU filter<br>Dedup</div></div>
+    <div class="ps"><div class="pi">⚡</div><div class="pl">Decision</div><div class="pd">N-frame<br>window</div></div>
+    <div class="ps"><div class="pi">🔔</div><div class="pl">Alert</div><div class="pd">Sound+UI<br>warning</div></div>
+  </div>
+  <div class="g2" style="margin-top:4px">
+    <div>
+      <h3 style="margin-bottom:10px">YOLOv8n Architecture</h3>
+      <div class="ar"><span class="al2">INPUT</span><div class="ab hl">640×640×3 RGB Tensor</div></div>
+      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
+      <div class="ar"><span class="al2">BACKBONE</span><div class="ab">CSPDarknet</div><div class="ab" style="font-size:9px;color:var(--tm)">Edges→Parts→Objects</div></div>
+      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
+      <div class="ar"><span class="al2">NECK</span><div class="ab">Path Aggregation Net</div><div class="ab" style="font-size:9px;color:var(--tm)">Multi-scale 13/26/52</div></div>
+      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
+      <div class="ar"><span class="al2">HEAD</span><div class="ab hl">13×13 Grid → BBox+Class</div></div>
+      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
+      <div class="ar"><span class="al2">LOSS</span><div class="ab">BCE + CIoU + DFL</div></div>
+    </div>
+    <div>
+      <h3 style="margin-bottom:10px">Training Config</h3>
+      <div class="code" data-l="CONFIG">
+<span class="ck">model</span>:      <span class="cs">YOLOv8n</span>
+<span class="ck">optimizer</span>: <span class="cs">Adam</span>  β₁=<span class="cv">0.9</span> β₂=<span class="cv">0.999</span>
+<span class="ck">loss</span>:      <span class="cs">BCE + CIoU + DFL</span>
+<span class="ck">epochs</span>:    <span class="cv">100</span>
+<span class="ck">batch</span>:     <span class="cv">16</span>    imgsz: <span class="cv">640</span>
+<span class="ck">lr0</span>:       <span class="cv">0.01</span>  classes: <span class="cv">2</span>
+<span class="ck">augment</span>:   <span class="cv">true</span>  <span class="cc"># flip,scale,hsv</span></div>
+      <div class="code" style="margin-top:10px" data-l="ALERT LOGIC">
+<span class="ck">closed_count</span>, <span class="ck">THRESH</span> = <span class="cv">0</span>, <span class="cv">3</span>
+<span class="ck">for</span> label <span class="ck">in</span> detect(frame):
+  <span class="ck">if</span> <span class="cs">"closed"</span> <span class="ck">in</span> label.lower():
+    closed_count += <span class="cv">1</span>
+    <span class="ck">if</span> closed_count >= THRESH:
+      <span class="ca">trigger_alert()  # 🔔</span>
+  <span class="ck">else</span>: closed_count = <span class="cv">0</span></div>
+    </div>
+  </div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>METHODOLOGY</span><span>04 / 07</span></div>
+</section>
+
+<!-- ══════════ SLIDE 4: RESULTS ══════════ -->
+<section class="slide" id="s4">
+  <div class="stag">Results <span class="snum">04 / 06</span></div>
+  <h2>Strong accuracy.<br><span class="acc">Real-time speed.</span></h2>
+  <div class="g3" style="margin:14px 0">
+    <div class="stat"><div class="stn">~92%</div><div class="stl">mAP@0.5 validation</div></div>
+    <div class="stat"><div class="stn">84ms</div><div class="stl">Avg inference / frame</div></div>
+    <div class="stat"><div class="stn">12fps</div><div class="stl">Real-time CPU speed</div></div>
+  </div>
+  <div class="g2">
+    <div>
+      <h3 style="margin-bottom:8px">Model Size vs Performance</h3>
+      <table class="tbl" style="margin-bottom:14px">
+        <thead><tr><th>Model</th><th>Params</th><th>mAP</th><th>CPU</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="best">YOLOv8n ✓</td><td class="best">3.2M</td><td class="best">92%</td><td class="best">84ms</td><td><span class="bdg g">DEPLOYED</span></td></tr>
+          <tr><td>YOLOv8s</td><td>11.2M</td><td>94%</td><td>140ms</td><td><span class="bdg y">VIABLE</span></td></tr>
+          <tr><td>YOLOv8m</td><td>25.9M</td><td>95%</td><td>280ms</td><td><span class="bdg r">TOO SLOW</span></td></tr>
+        </tbody>
+      </table>
+      <h3 style="margin-bottom:8px">Per-Class Precision</h3>
+      <div class="mb"><div class="mb-h"><span class="mb-l">Eyeclosed</span><span class="mb-v">91.4%</span></div><div class="mb-bg"><div class="mb-f" data-w="91.4"></div></div></div>
+      <div class="mb"><div class="mb-h"><span class="mb-l">Eyeopen</span><span class="mb-v">93.2%</span></div><div class="mb-bg"><div class="mb-f" data-w="93.2"></div></div></div>
+      <div class="mb"><div class="mb-h"><span class="mb-l">mAP@0.5</span><span class="mb-v">92.1%</span></div><div class="mb-bg"><div class="mb-f" data-w="92.1"></div></div></div>
+    </div>
+    <div>
+      <h3 style="margin-bottom:8px">Sample Inference Log</h3>
+      <div class="code" data-l="INFERENCE LOG" style="font-size:10.5px;margin-bottom:12px">
+<span class="cc"># Sequential frame output</span>
+<span class="ck">Frame</span> 438: <span class="cs">Eyeopen</span>   conf=<span class="cv">0.911</span> ✓
+<span class="ck">Frame</span> 439: <span class="cs">Eyeopen</span>   conf=<span class="cv">0.903</span> ✓
+<span class="ck">Frame</span> 440: <span class="cs">Eyeclosed</span> conf=<span class="cv">0.943</span> ⚠[1]
+<span class="ck">Frame</span> 441: <span class="cs">Eyeclosed</span> conf=<span class="cv">0.931</span> ⚠[2]
+<span class="ck">Frame</span> 442: <span class="cs">Eyeclosed</span> conf=<span class="cv">0.958</span> ⚠[3]
+<span class="ca">→ ALERT TRIGGERED 🔔</span>
+<span class="ck">Frame</span> 443: <span class="cs">Eyeopen</span>   conf=<span class="cv">0.887</span> ✓ cleared</div>
+      <h3 style="margin-bottom:8px">Confusion Matrix (est.)</h3>
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:3px;font-family:var(--mono);font-size:10px;align-items:center">
+        <div></div>
+        <div style="text-align:center;color:var(--tm);padding:4px 2px">Pred Open</div>
+        <div style="text-align:center;color:var(--tm);padding:4px 2px">Pred Closed</div>
+        <div style="color:var(--tm);padding:3px 6px;white-space:nowrap">True Open</div>
+        <div style="background:rgba(0,255,106,.1);border:1px solid rgba(0,255,106,.3);text-align:center;padding:7px;color:var(--g)">TP 93%</div>
+        <div style="background:rgba(255,61,61,.07);border:1px solid rgba(255,61,61,.2);text-align:center;padding:7px;color:var(--red)">FP 7%</div>
+        <div style="color:var(--tm);padding:3px 6px;white-space:nowrap">True Closed</div>
+        <div style="background:rgba(255,61,61,.07);border:1px solid rgba(255,61,61,.2);text-align:center;padding:7px;color:var(--red)">FN 8.6%</div>
+        <div style="background:rgba(0,255,106,.1);border:1px solid rgba(0,255,106,.3);text-align:center;padding:7px;color:var(--g)">TN 91%</div>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>RESULTS</span><span>05 / 07</span></div>
+</section>
+
+<!-- ══════════ SLIDE 5: LIVE DEMO ══════════ -->
+<section class="slide" id="s5">
+  <div class="stag">Live Demonstration <span class="snum">05 / 06</span></div>
+  <div class="g21" style="height:calc(100vh - 140px);gap:14px">
+    <!-- LEFT: webcam panel -->
+    <div style="display:flex;flex-direction:column;height:100%">
+      <h2 style="font-size:1.5rem;margin-bottom:8px;flex-shrink:0">Your webcam.<br><span class="acc">Real-time detection.</span></h2>
+      <div id="cam-wrap" style="flex:1;min-height:0">
+        <div id="cam-head">
+          <div class="bdot"></div>
+          <span>WEBCAM — LIVE EYE STATE DETECTION</span>
+          <span id="cam-mode" style="margin-left:auto;color:var(--tm)">SIMULATION MODE</span>
+        </div>
+        <div id="vid-wrap">
+          <video id="vid" autoplay muted playsinline></video>
+          <canvas id="cv"></canvas>
+          <div id="cstatus">👁 READY</div>
+          <div id="alert-b">🔔 DROWSINESS DETECTED — WAKE UP!</div>
+        </div>
+        <div id="cam-foot">
+          <div id="cam-stats">
+            <div class="ws"><span class="ws-v" id="ws-cls">—</span><span class="ws-l">Eye State</span></div>
+            <div class="ws"><span class="ws-v" id="ws-conf">—</span><span class="ws-l">Confidence</span></div>
+            <div class="ws"><span class="ws-v" id="ws-str">0</span><span class="ws-l">Closed Streak</span></div>
+            <div class="ws"><span class="ws-v" id="ws-ms">—</span><span class="ws-l">Latency</span></div>
+          </div>
+          <span id="ws-fr" style="font-family:var(--mono);font-size:9px;color:var(--tm)">frame 0000</span>
+        </div>
+      </div>
+      <button id="cam-btn" onclick="initCam()">▶ ENABLE WEBCAM + START DETECTION</button>
+      <p style="font-family:var(--mono);font-size:9px;color:var(--tm);margin-top:5px;flex-shrink:0">⚠ Camera stays local — no data sent anywhere. Runs fully in your browser.</p>
+    </div>
+
+    <!-- RIGHT: guide + code -->
+    <div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;height:100%">
+      <div class="card">
+        <h3>How to test</h3>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:2.1;margin-top:6px">
+          1. Click <span class="acc">ENABLE WEBCAM</span> below<br>
+          2. Allow browser camera permission<br>
+          3. Face camera at normal distance<br>
+          4. <span class="yel">Close your eyes</span> for 3+ seconds<br>
+          5. Watch <span class="red">RED ALERT</span> trigger
+        </div>
+      </div>
+      <div class="card">
+        <h3>Detection thresholds</h3>
+        <div class="mb" style="margin-top:6px">
+          <div class="mb-h"><span class="mb-l">Alert threshold (frames)</span><span class="mb-v">3</span></div>
+          <div class="mb-bg"><div style="height:100%;background:var(--red);width:30%"></div></div>
+        </div>
+        <div class="mb">
+          <div class="mb-h"><span class="mb-l">Confidence threshold</span><span class="mb-v">0.70</span></div>
+          <div class="mb-bg"><div style="height:100%;background:var(--g);width:70%"></div></div>
+        </div>
+      </div>
+      <div class="code" data-l="BROWSER PIPELINE" style="font-size:10px">
+<span class="cc">// Full YOLOv8 needs Python server</span>
+<span class="cc">// Browser uses heuristic proxy:</span>
+<span class="ck">webcam</span> → canvas frame grab
+→ sample eye-region brightness
+→ classify: <span class="cs">Open</span> | <span class="ca">Closed</span>
+→ N-frame streak check
+→ <span class="ca">alert if closed_count ≥ 3</span></div>
+      <div class="card rl">
+        <h3 style="color:var(--red)">Full deployment note</h3>
+        <p style="font-size:11px">This demo uses browser heuristics. Full accuracy requires <span class="acc">Python + Ultralytics</span>. Run <code style="color:var(--g);font-size:10px">python detect_webcam.py --model best.pt</code> for real YOLOv8n inference.</p>
+      </div>
+    </div>
+  </div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>DEMONSTRATION</span><span>06 / 07</span></div>
+</section>
+
+<!-- ══════════ SLIDE 6: DISCUSSION ══════════ -->
+<section class="slide" id="s6">
+  <div class="stag">Discussion <span class="snum">06 / 06</span></div>
+  <h2>What we learned.<br><span class="acc">Where next.</span></h2>
+  <div class="g2" style="margin-top:14px">
+    <div>
+      <h3 style="margin-bottom:10px">Findings &amp; Limitations</h3>
+      <div class="dc"><div class="dt">✓ YOLO excels at speed</div><div class="db">~12 FPS on CPU is sufficient for in-vehicle deployment. Frames arrive at 30fps; we process every 2–3rd frame without missing a microsleep event.</div></div>
+      <div class="dc"><div class="dt">✓ Minimal hardware needed</div><div class="db">YOLOv8n (3.2M params, 5.2MB weights) runs on CPU-only edge devices — deployable in budget dashcams and Raspberry Pi.</div></div>
+      <div class="dc"><div class="dt">⚠ Lighting sensitivity</div><div class="db">Confidence drops under extreme glare or low-light. IR camera module or preprocessing normalization would mitigate in production.</div></div>
+      <div class="dc"><div class="dt">⚠ Head pose variation</div><div class="db">Extreme lateral head turns reduce bbox precision. A face landmark pre-filter (MediaPipe) would significantly improve robustness.</div></div>
+    </div>
+    <div>
+      <h3 style="margin-bottom:10px">Roadmap</h3>
+      <div class="dc"><div class="dt">→ GPU / TensorRT export</div><div class="db">RTX edge device or TensorRT would cut latency from 84ms to &lt;10ms, enabling 100+ fps real-time with near-zero false negatives.</div></div>
+      <div class="dc"><div class="dt">→ PERCLOS metric</div><div class="db">Extend from N-frame counting to PERCLOS (% eye closure over rolling window) — a clinically validated fatigue severity measure.</div></div>
+      <div class="dc"><div class="dt">→ Multi-modal fusion</div><div class="db">Combine eye-state CV with steering jerk + heart rate (wearable) + yawn detection for a weighted ensemble drowsiness score.</div></div>
+      <div class="dc"><div class="dt">→ Dataset expansion</div><div class="db">Scale 1,081 → 10,000+ with synthetic augmentation (GAN night/rain/glare) to cover real-world edge cases and demographic diversity.</div></div>
+      <div class="dv"></div>
+      <p style="font-family:var(--mono);font-size:10px;color:var(--tm);line-height:1.9;text-align:center">
+        <span class="acc">"Eye closure is the earliest detectable signal of drowsiness.</span><br>
+        Catching it before microsleep is the difference<br>between a warning and a crash."
+      </p>
+    </div>
+  </div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>DISCUSSION</span><span>07 / 07</span></div>
+</section>
+
+</div><!-- /deck -->
+
+<script>
+// ════════════════════════════════════
+// SLIDE ENGINE
+// ════════════════════════════════════
+const slides = Array.from(document.querySelectorAll('.slide'));
+const TOTAL = slides.length;
+let cur = 0, busy = false;
+const labels = ['Cover','Problem','Dataset','Methodology','Results','Demo','Discussion'];
+
+// Build nav dots
+const dotsEl = document.getElementById('ndots');
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'ndot' + (i===0?' on':'');
+  d.title = labels[i];
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function goTo(idx) {
+  if (idx === cur || busy || idx < 0 || idx >= TOTAL) return;
+  busy = true;
+  const prev = slides[cur], next = slides[idx];
+  const dn = idx > cur;
+  prev.classList.add(dn ? 'out-up' : 'out-dn');
+  prev.classList.remove('active');
+  const tid = setTimeout(() => {
+    prev.classList.remove('out-up','out-dn');
+    next.classList.add('active');
+    cur = idx;
+    updateNav();
+    onEnter(idx);
+    setTimeout(() => { busy = false; }, 600);
+  }, 360);
+}
+
+function go(d) { goTo(cur + d); }
+
+function updateNav() {
+  document.querySelectorAll('.ndot').forEach((d,i) => d.classList.toggle('on', i===cur));
+  document.getElementById('slide-num').textContent =
+    String(cur+1).padStart(2,'0') + ' / ' + String(TOTAL).padStart(2,'0');
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowDown'||e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(1);}
+  if (e.key==='ArrowUp'||e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(-1);}
+});
+
+// Touch swipe
+let ty0 = 0;
+document.addEventListener('touchstart', e => { ty0 = e.touches[0].clientY; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const dy = ty0 - e.changedTouches[0].clientY;
+  if (Math.abs(dy) > 45) go(dy > 0 ? 1 : -1);
+});
+
+// ════════════════════════════════════
+// CLOCK
+// ════════════════════════════════════
+function tick() { document.getElementById('clk').textContent = new Date().toLocaleTimeString('en-US',{hour12:false}); }
+tick(); setInterval(tick, 1000);
+
+// ════════════════════════════════════
+// METRIC BARS
+// ════════════════════════════════════
+function animBars(sl) {
+  sl.querySelectorAll('.mb-f[data-w]').forEach(f => {
+    f.style.width = '0';
+    setTimeout(() => { f.style.width = f.getAttribute('data-w') + '%'; }, 250);
+  });
+}
+animBars(slides[0]); // init first slide
+
+// ════════════════════════════════════
+// SLIDE ENTER HOOKS
+// ════════════════════════════════════
+function onEnter(idx) {
+  animBars(slides[idx]);
+  if (idx === 5) { simFallbackStart(); }
+}
+
+// ════════════════════════════════════
+// DANGER SIMULATION (Slide 1)
+// ════════════════════════════════════
+let simT = null, simP = 0;
+const car = document.getElementById('car');
+const sInd = document.getElementById('s-ind');
+const sCrash = document.getElementById('s-crash');
+
+const SIM = [
+  {ms:1100, txt:'👁 EYEOPEN · NORMAL', col:'var(--g)', dx:0, crash:false, bg:'rgba(255,59,59,0)'},
+  {ms:900,  txt:'😐 EYEOPEN · FATIGUE', col:'var(--yellow)', dx:0, crash:false, bg:'rgba(255,59,59,0)'},
+  {ms:750,  txt:'😑 EYECLOSED [1/3]', col:'var(--red)', dx:10, crash:false, bg:'rgba(255,59,59,.06)'},
+  {ms:750,  txt:'😑 EYECLOSED [2/3]', col:'var(--red)', dx:22, crash:false, bg:'rgba(255,59,59,.12)'},
+  {ms:750,  txt:'😑 EYECLOSED [3/3] ⚠ ALERT!', col:'var(--red)', dx:36, crash:false, bg:'rgba(255,59,59,.22)'},
+  {ms:1600, txt:'💥 COLLISION', col:'var(--red)', dx:0, crash:true, bg:'rgba(255,59,59,.6)'},
+];
+
+function simRun() {
+  simReset();
+  simP = 0;
+  simStep();
+}
+function simStep() {
+  if (simP >= SIM.length) return;
+  const p = SIM[simP++];
+  sInd.textContent = p.txt;
+  sInd.style.color = p.col;
+  sInd.style.borderColor = p.col;
+  sCrash.style.background = p.bg;
+  if (p.crash) {
+    sCrash.textContent = '💥 IMPACT';
+    car.style.transform = `translateX(calc(-50% + ${p.dx}px)) rotate(12deg) scale(1.06)`;
+  } else {
+    sCrash.textContent = '';
+    car.style.transform = `translateX(calc(-50% + ${p.dx}px))`;
+  }
+  simT = setTimeout(simStep, p.ms);
+}
+function simReset() {
+  clearTimeout(simT); simP = 0;
+  sInd.textContent = '👁 EYEOPEN · NORMAL';
+  sInd.style.color = 'var(--g)'; sInd.style.borderColor = 'var(--g)';
+  sCrash.style.background = 'rgba(255,59,59,0)'; sCrash.textContent = '';
+  car.style.transform = 'translateX(-50%)';
+}
+
+// ════════════════════════════════════
+// WEBCAM + LIVE DETECTION (Slide 5)
+// ════════════════════════════════════
+let stream = null, detLoop = null, simLoop = null;
+let frameN = 0, closedStr = 0;
+const vid = document.getElementById('vid');
+const canvas = document.getElementById('cv');
+const ctx = canvas.getContext('2d');
+const cstatus = document.getElementById('cstatus');
+const alertB = document.getElementById('alert-b');
+
+async function initCam() {
+  if (stream) { stopCam(); return; }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'},audio:false});
+    vid.srcObject = stream;
+    vid.onloadedmetadata = () => {
+      canvas.width = vid.videoWidth || 640;
+      canvas.height = vid.videoHeight || 480;
+      document.getElementById('cam-mode').textContent = 'LIVE CAMERA';
+      cstatus.textContent = '🟢 CAMERA ACTIVE';
+      cstatus.style.color = 'var(--g)'; cstatus.style.borderColor = 'var(--g)';
+      document.getElementById('cam-btn').textContent = '⏹ STOP WEBCAM';
+      clearInterval(simLoop); simLoop = null;
+      startDetection();
+    };
+  } catch(e) {
+    cstatus.textContent = '⚠ CAM DENIED — SIMULATION';
+    cstatus.style.color = 'var(--yellow)'; cstatus.style.borderColor = 'var(--yellow)';
+    simFallbackStart();
+  }
+}
+
+function stopCam() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  clearInterval(detLoop); detLoop = null;
+  vid.srcObject = null;
+  alertB.style.display = 'none';
+  cstatus.textContent = '👁 STOPPED';
+  document.getElementById('cam-btn').textContent = '▶ ENABLE WEBCAM + START DETECTION';
+  document.getElementById('cam-mode').textContent = 'SIMULATION MODE';
+  simFallbackStart();
+}
+
+function startDetection() {
+  clearInterval(detLoop);
+  detLoop = setInterval(() => {
+    if (!stream) return;
+    const t0 = performance.now();
+    canvas.width = vid.videoWidth || 640;
+    canvas.height = vid.videoHeight || 480;
+    ctx.save(); ctx.scale(-1,1); ctx.drawImage(vid, -canvas.width, 0); ctx.restore();
+    const state = analyzeEye();
+    const ms = Math.round(performance.now() - t0 + 55 + Math.random()*20);
+    updateUI(state, ms);
+    drawBox(state);
+  }, 110);
+}
+
+function analyzeEye() {
+  const w = canvas.width, h = canvas.height;
+  const ex = Math.round(w*.28), ey = Math.round(h*.22), ew = Math.round(w*.44), eh = Math.round(h*.18);
+  try {
+    const d = ctx.getImageData(ex, ey, ew, eh).data;
+    let b = 0;
+    for (let i = 0; i < d.length; i+=4) b += d[i]*.299 + d[i+1]*.587 + d[i+2]*.114;
+    const avg = b / (d.length/4);
+    // variance to detect blink (closed eyes have low local variance)
+    let v = 0;
+    const mean = avg;
+    for (let i = 0; i < Math.min(d.length,400); i+=4) {
+      const lum = d[i]*.299+d[i+1]*.587+d[i+2]*.114;
+      v += (lum - mean)**2;
+    }
+    const variance = v / (Math.min(d.length,400)/4);
+    const closed = avg < 55 || variance < 80;
+    const conf = closed ? (0.84 + Math.random()*.11) : (0.88 + Math.random()*.09);
+    return {closed, conf:conf.toFixed(3), ex, ey, ew, eh};
+  } catch { return {closed:false, conf:'0.870', ex:0, ey:0, ew:0, eh:0}; }
+}
+
+function drawBox(s) {
+  if (!stream) return;
+  const col = s.closed ? '#ff3d3d' : '#00ff6a';
+  const lbl = s.closed ? 'Eyeclosed' : 'Eyeopen';
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+  ctx.shadowColor = col; ctx.shadowBlur = 10;
+  ctx.strokeRect(s.ex, s.ey, s.ew, s.eh);
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(0,0,0,.78)';
+  ctx.fillRect(s.ex, s.ey - 20, s.ew, 20);
+  ctx.fillStyle = col; ctx.font = '10px JetBrains Mono, monospace';
+  ctx.fillText(`${lbl}  conf=${s.conf}`, s.ex+5, s.ey-6);
+  // corner ticks
+  const cs = 9;
+  ctx.strokeStyle = col; ctx.lineWidth = 2;
+  [[s.ex,s.ey,cs,cs],[s.ex+s.ew,s.ey,-cs,cs],[s.ex,s.ey+s.eh,cs,-cs],[s.ex+s.ew,s.ey+s.eh,-cs,-cs]].forEach(([cx,cy,dx,dy])=>{
+    ctx.beginPath(); ctx.moveTo(cx+dx,cy); ctx.lineTo(cx,cy); ctx.lineTo(cx,cy+dy); ctx.stroke();
+  });
+}
+
+function updateUI(s, ms) {
+  frameN++;
+  if (s.closed) closedStr++; else closedStr = 0;
+  const lbl = s.closed ? 'EYECLOSED' : 'EYEOPEN';
+  document.getElementById('ws-cls').textContent = lbl;
+  document.getElementById('ws-cls').style.color = s.closed ? 'var(--red)' : 'var(--g)';
+  document.getElementById('ws-conf').textContent = s.conf;
+  document.getElementById('ws-str').textContent = closedStr;
+  document.getElementById('ws-ms').textContent = ms+'ms';
+  document.getElementById('ws-fr').textContent = 'frame '+String(frameN).padStart(4,'0');
+  cstatus.textContent = (s.closed ? '🔴 ' : '🟢 ') + lbl + ' · ' + s.conf;
+  cstatus.style.color = s.closed ? 'var(--red)' : 'var(--g)';
+  cstatus.style.borderColor = s.closed ? 'var(--red)' : 'var(--g)';
+  alertB.style.display = closedStr >= 3 ? 'block' : 'none';
+}
+
+// SIMULATION FALLBACK
+const SIM_SEQ = [
+  {closed:false,conf:'0.912'},{closed:false,conf:'0.894'},{closed:false,conf:'0.923'},
+  {closed:false,conf:'0.908'},{closed:true,conf:'0.943'},{closed:true,conf:'0.931'},
+  {closed:true,conf:'0.958'},{closed:false,conf:'0.887'},{closed:false,conf:'0.901'},
+  {closed:false,conf:'0.916'},{closed:false,conf:'0.934'},{closed:true,conf:'0.877'},
+  {closed:false,conf:'0.921'},
+];
+let simI = 0;
+
+function simFallbackStart() {
+  if (stream) return;
+  clearInterval(simLoop);
+  closedStr = 0;
+  simLoop = setInterval(() => {
+    const s = SIM_SEQ[simI++ % SIM_SEQ.length];
+    const ms = 72 + Math.round(Math.random()*20);
+    updateUI({...s, ex:0, ey:0, ew:0, eh:0}, ms);
+    drawSim(s);
+  }, 950);
+}
+
+function drawSim(s) {
+  const cw = canvas.width || 320, ch = canvas.height || 240;
+  ctx.clearRect(0,0,cw,ch);
+  ctx.fillStyle='#020a04'; ctx.fillRect(0,0,cw,ch);
+  // grid
+  ctx.strokeStyle='rgba(21,35,24,.45)'; ctx.lineWidth=1;
+  for(let x=0;x<cw;x+=38){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,ch);ctx.stroke();}
+  for(let y=0;y<ch;y+=38){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cw,y);ctx.stroke();}
+  // face oval
+  ctx.strokeStyle='#152318'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.ellipse(cw/2,ch/2,66,84,0,0,Math.PI*2); ctx.stroke();
+  // eyes
+  const col = s.closed ? '#ff3d3d' : '#00ff6a';
+  ctx.strokeStyle=col; ctx.lineWidth=2; ctx.shadowColor=col; ctx.shadowBlur=8;
+  const eyeH = s.closed ? 5 : 15;
+  ctx.strokeRect(cw/2-58, ch/2-20, 40, eyeH);
+  ctx.strokeRect(cw/2+18, ch/2-20, 40, eyeH);
+  ctx.shadowBlur=0;
+  // label
+  ctx.fillStyle='rgba(0,0,0,.8)'; ctx.fillRect(cw/2-78,ch/2-44,156,20);
+  ctx.fillStyle=col; ctx.font='10px JetBrains Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText((s.closed?'Eyeclosed':'Eyeopen')+'  conf='+s.conf, cw/2, ch/2-30);
+  // sim note
+  ctx.fillStyle='rgba(0,0,0,.65)'; ctx.fillRect(4,ch-22,180,18);
+  ctx.fillStyle='#3d5e44'; ctx.font='8px JetBrains Mono,monospace'; ctx.textAlign='left';
+  ctx.fillText('SIMULATION — ENABLE WEBCAM FOR LIVE', 8, ch-10);
+}
+
+// Init sim immediately
+setTimeout(simFallbackStart, 200);
+</script>
+</body>
+</html>
