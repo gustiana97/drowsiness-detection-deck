@@ -206,7 +206,7 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
 
 <!-- TOP BAR -->
 <div id="bar">
-  <div style="display:flex;align-items:center;gap:10px"><div class="bdot"></div><span>DROWSINESS_DETECTION · YOLOv8n · PITCH_DECK_v2</span></div>
+  <div style="display:flex;align-items:center;gap:10px"><div class="bdot"></div><span>DROWSINESS_DETECTION · YOLOv8n · PITCH_DECK</span></div>
   <div style="display:flex;align-items:center;gap:16px"><span id="clk"></span><span class="btag">RESEARCH // LIVE</span></div>
 </div>
 
@@ -222,13 +222,24 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
 
 <!-- ══════════ SLIDE 0: COVER ══════════ -->
 <section class="slide active" id="s0">
-  <div class="hero-eye"><div class="bdot"></div>Real-Time Computer Vision System — 2026</div>
+  <div class="hero-eye"><div class="bdot"></div>Deep Learning Final Project — 2026</div>
   <h1>Drowsiness<br><span class="acc">Detection</span><span class="cur"></span><br>
     <span style="font-size:.45em;color:var(--tm);font-weight:400;letter-spacing:-.01em">via Eye-State Classification · YOLOv8n</span></h1>
   <p style="max-width:500px;font-size:15px">
     A vertically integrated pipeline detecting closed eyes before fatigue becomes fatal.
-    <strong style="color:var(--t)"> Binary classification · 1,081 frames · ~12 FPS CPU.</strong>
+    <span style="color:var(--t)"> Binary classification · 1,081 frames · ~12 FPS CPU.</span>
   </p>
+<br>
+  <p style="max-width:500px;font-size:15px">
+    Presented by
+    <strong style="color:var(--t)"> <br> Tanathip Sungsorn M11453807 | Jiramet Thaworn M11453806 
+      <br> Padipat Aincham M11452803 | Risman Gustiana M11401853</strong>
+  </p>
+<br>
+   <p style="max-width:500px;font-size:15px">
+    Advised by <strong style="color:var(--t)"> Prof. Jr-Fong Dang </strong>
+  </p>
+
   <div class="hero-tags">
     <span>Problem</span><span>Dataset</span><span>Methodology</span><span>Results</span><span>Demo</span><span>Discussion</span>
   </div>
@@ -365,52 +376,470 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
   <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>DATASET</span><span>03 / 07</span></div>
 </section>
 
-<!-- ══════════ SLIDE 3: METHODOLOGY ══════════ -->
+<!-- ══════════════════════════════════════════════════════
+     SLIDE 3a — METHODOLOGY: FULL PIPELINE DIAGRAM
+     Based on Pipeline_Dom1.jpg
+══════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 3 — METHODOLOGY A: FULL PIPELINE DIAGRAM (Pipeline_Dom1)
+═══════════════════════════════════════════════════════════════ -->
 <section class="slide" id="s3">
-  <div class="stag">Methodology <span class="snum">03 / 06</span></div>
-  <h2>End-to-end pipeline.<br><span class="acc">Zero manual features.</span></h2>
-  <div class="pipe">
-    <div class="ps"><div class="pi">🎥</div><div class="pl">Capture</div><div class="pd">480×640<br>RGB frame</div></div>
-    <div class="ps"><div class="pi">📐</div><div class="pl">Preprocess</div><div class="pd">Resize 640²<br>Normalize</div></div>
-    <div class="ps"><div class="pi">🧠</div><div class="pl">YOLOv8n</div><div class="pd">CSPDarknet<br>PANet Head</div></div>
-    <div class="ps"><div class="pi">🔧</div><div class="pl">NMS</div><div class="pd">IoU filter<br>Dedup</div></div>
-    <div class="ps"><div class="pi">⚡</div><div class="pl">Decision</div><div class="pd">N-frame<br>window</div></div>
-    <div class="ps"><div class="pi">🔔</div><div class="pl">Alert</div><div class="pd">Sound+UI<br>warning</div></div>
-  </div>
-  <div class="g2" style="margin-top:4px">
-    <div>
-      <h3 style="margin-bottom:10px">YOLOv8n Architecture</h3>
-      <div class="ar"><span class="al2">INPUT</span><div class="ab hl">640×640×3 RGB Tensor</div></div>
-      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
-      <div class="ar"><span class="al2">BACKBONE</span><div class="ab">CSPDarknet</div><div class="ab" style="font-size:9px;color:var(--tm)">Edges→Parts→Objects</div></div>
-      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
-      <div class="ar"><span class="al2">NECK</span><div class="ab">Path Aggregation Net</div><div class="ab" style="font-size:9px;color:var(--tm)">Multi-scale 13/26/52</div></div>
-      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
-      <div class="ar"><span class="al2">HEAD</span><div class="ab hl">13×13 Grid → BBox+Class</div></div>
-      <div style="margin:2px 0 2px 72px;color:var(--g);font-size:14px">↓</div>
-      <div class="ar"><span class="al2">LOSS</span><div class="ab">BCE + CIoU + DFL</div></div>
+<style>
+/* ── Pipeline slide styles ── */
+.P{font-family:var(--mono);font-size:10px}
+.zone{border-radius:0;padding:10px 12px;margin-bottom:8px}
+.zone-g{background:rgba(0,255,106,.04);border:1px solid rgba(0,255,106,.25)}
+.zone-b{background:rgba(0,120,255,.04);border:1px solid rgba(0,120,255,.2)}
+.zone-y{background:rgba(255,215,64,.04);border:1px dashed rgba(255,215,64,.4)}
+.zone-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.zone-lbl.g{color:var(--g)}.zone-lbl.y{color:var(--yellow)}.zone-lbl.b{color:#4fc3f7}
+/* Step boxes */
+.bx{font-family:var(--mono);border:1px solid var(--border);background:var(--card);padding:8px 10px;font-size:10px;color:var(--td);line-height:1.5}
+.bx .n{font-size:8px;color:var(--tm);letter-spacing:.1em;margin-bottom:3px}
+.bx .t{font-size:11px;font-weight:700;color:var(--t);margin-bottom:2px}
+.bx .d{font-size:9px;color:var(--tm)}
+.bx.sg{border-color:rgba(0,255,106,.5);background:rgba(0,255,106,.06)}
+.bx.sg .t{color:var(--g)}.bx.sg .d{color:rgba(0,255,106,.65)}
+.bx.sr{border-color:rgba(255,61,61,.5);background:rgba(255,61,61,.06)}
+.bx.sr .t{color:var(--red)}.bx.sr .d{color:rgba(255,61,61,.65)}
+.bx.sy{border-color:rgba(255,215,64,.5);background:rgba(255,215,64,.06)}
+.bx.sy .t{color:var(--yellow)}.bx.sy .d{color:rgba(255,215,64,.65)}
+.bx.so{border-color:rgba(255,140,66,.5);background:rgba(255,140,66,.06)}
+.bx.so .t{color:var(--orange)}.bx.so .d{color:rgba(255,140,66,.65)}
+/* Arrows */
+.ra{color:var(--g);font-size:16px;padding:0 5px;flex-shrink:0;font-family:var(--mono)}
+.ra.y{color:var(--yellow)}.ra.r{color:var(--red)}
+.da{color:var(--g);font-size:14px;text-align:center;line-height:1;margin:2px 0}
+/* Diamond */
+.dmd{flex-shrink:0}
+/* Row util */
+.row{display:flex;align-items:center;gap:0}
+.col{display:flex;flex-direction:column}
+/* class pills */
+.cpill{font-family:var(--mono);font-size:8px;padding:1px 6px;border:1px solid;border-radius:0;display:inline-block}
+</style>
+
+<div class="stag">Methodology 3A — Full Pipeline Diagram <span class="snum">04 / 08</span></div>
+<h2 style="font-size:1.55rem;margin-bottom:8px">Full Pipeline Diagram · <span class="acc">Driver Drowsiness Detection (YOLOv8n)</span></h2>
+
+<!-- ═══ ZONE 1: Real-Time Detection Pipeline — Steps 1→4 ═══ -->
+<div class="zone zone-g" style="margin-bottom:8px">
+  <div class="zone-lbl g">🎥 &nbsp;Real-Time Detection Pipeline &nbsp;·&nbsp; webcam.py</div>
+  <div class="row" style="align-items:stretch;gap:0">
+
+    <!-- Input webcam icon -->
+    <div class="col" style="align-items:center;justify-content:center;padding:6px 10px;border:1px solid var(--border);background:var(--card);margin-right:0">
+      <div style="font-size:1.8rem">🎥</div>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--tm);text-align:center;margin-top:4px">Input:<br>Real-time<br>Video Stream<br>(Webcam)</div>
     </div>
-    <div>
-      <h3 style="margin-bottom:10px">Training Config</h3>
-      <div class="code" data-l="CONFIG">
-<span class="ck">model</span>:      <span class="cs">YOLOv8n</span>
-<span class="ck">optimizer</span>: <span class="cs">Adam</span>  β₁=<span class="cv">0.9</span> β₂=<span class="cv">0.999</span>
-<span class="ck">loss</span>:      <span class="cs">BCE + CIoU + DFL</span>
-<span class="ck">epochs</span>:    <span class="cv">100</span>
-<span class="ck">batch</span>:     <span class="cv">16</span>    imgsz: <span class="cv">640</span>
-<span class="ck">lr0</span>:       <span class="cv">0.01</span>  classes: <span class="cv">2</span>
-<span class="ck">augment</span>:   <span class="cv">true</span>  <span class="cc"># flip,scale,hsv</span></div>
-      <div class="code" style="margin-top:10px" data-l="ALERT LOGIC">
-<span class="ck">closed_count</span>, <span class="ck">THRESH</span> = <span class="cv">0</span>, <span class="cv">3</span>
-<span class="ck">for</span> label <span class="ck">in</span> detect(frame):
-  <span class="ck">if</span> <span class="cs">"closed"</span> <span class="ck">in</span> label.lower():
-    closed_count += <span class="cv">1</span>
-    <span class="ck">if</span> closed_count >= THRESH:
-      <span class="ca">trigger_alert()  # 🔔</span>
-  <span class="ck">else</span>: closed_count = <span class="cv">0</span></div>
+    <div class="ra">→</div>
+
+    <!-- Step 1 -->
+    <div class="bx" style="flex:1">
+      <div class="n">STEP 1</div>
+      <div class="t">Frame Acquisition</div>
+      <div class="d">Capture raw frame from<br>live video stream input</div>
+    </div>
+    <div class="ra">→</div>
+
+    <!-- Step 2 -->
+    <div class="bx" style="flex:1.1">
+      <div class="n">STEP 2</div>
+      <div class="t">Preprocessing</div>
+      <div class="d">Resize to <strong style="color:var(--g)">640×640</strong><br>Color Conversion BGR→RGB</div>
+    </div>
+    <div class="ra">→</div>
+
+    <!-- Step 3 — YOLOv8n core -->
+    <div class="bx sg" style="flex:1.3;position:relative">
+      <div style="position:absolute;top:-7px;right:8px;font-family:var(--mono);font-size:7px;background:var(--bg);color:var(--g);padding:0 4px;letter-spacing:.08em">CORE MODEL</div>
+      <div class="n" style="color:rgba(0,255,106,.6)">STEP 3</div>
+      <div class="t">🧠 YOLOv8n Inference Model</div>
+      <div class="d"><strong style="color:var(--g)">best.pt</strong> (custom-trained)<br><strong style="color:var(--g)">model.predict()</strong> · Load Weights<br>Confidence Threshold = <strong style="color:var(--g)">0.25</strong></div>
+    </div>
+    <div class="ra">→</div>
+
+    <!-- Step 4 output -->
+    <div class="bx" style="flex:1.2">
+      <div class="n">STEP 4 · OUTPUT</div>
+      <div class="t">Detection Output</div>
+      <div class="d" style="margin-bottom:6px">• Bounding Boxes<br>• Class Confidences, Class Labels</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        <span class="cpill" style="color:var(--red);border-color:rgba(255,61,61,.4)">closed_eyes</span>
+        <span class="cpill" style="color:var(--yellow);border-color:rgba(255,215,64,.4)">yawn</span>
+        <span class="cpill" style="color:var(--g);border-color:rgba(0,255,106,.4)">open_eyes</span>
+        <span class="cpill" style="color:#4fc3f7;border-color:rgba(79,195,247,.4)">awake</span>
+        <span class="cpill" style="color:var(--orange);border-color:rgba(255,140,66,.4)">drowsy</span>
+      </div>
     </div>
   </div>
-  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>METHODOLOGY</span><span>04 / 07</span></div>
+</div>
+
+<!-- ═══ ZONE 2: Drowsiness Logic — Steps 5→10 ═══ -->
+<div class="zone zone-g" style="margin-bottom:8px">
+  <div class="zone-lbl g">⚙ &nbsp;Step 5 — Drowsiness Logic &nbsp;·&nbsp; webcam.py</div>
+  <div class="row" style="align-items:flex-start;gap:0">
+
+    <!-- Diamond: Is Detected Class in DROWSY_KEYWORDS? -->
+    <div class="col" style="align-items:center;gap:4px;flex-shrink:0">
+      <svg class="dmd" width="110" height="72" viewBox="0 0 110 72">
+        <polygon points="55,2 108,36 55,70 2,36" fill="rgba(0,255,106,.08)" stroke="rgba(0,255,106,.6)" stroke-width="1.5"/>
+        <text x="55" y="22" text-anchor="middle" font-size="8" fill="#00ff6a" font-family="monospace">Step 5</text>        
+        <text x="55" y="37" text-anchor="middle" font-size="9" fill="#00ff6a" font-family="monospace">DROWSY_KEYWORDS?</text>
+        <text x="55" y="50" text-anchor="middle" font-size="10" fill="#3d5e44" font-family="monospace">(closed,yawn,drowsy)</text>
+      </svg>
+      <div style="font-family:var(--mono);font-size:8px;color:var(--tm);text-align:center">Class in ALERT_KEYWORDS<br>('open','awake') or no detect</div>
+    </div>
+
+    <!-- Branches column -->
+    <div class="col" style="flex:1;gap:6px;margin-left:6px">
+
+      <!-- YES branch: Steps 6 → 7 → 8 or 9 -->
+      <div class="row" style="align-items:center;gap:0">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--g);padding-right:6px;flex-shrink:0">YES ↓</div>
+
+        <div class="bx sg" style="flex:1">
+          <div class="n" style="color:rgba(0,255,106,.55)">STEP 6</div>
+          <div class="t" style="font-size:10px">Update Temporal Tracker</div>
+          <div class="d">Start / Increment<br><strong style="color:var(--g)">'drowsy_since'</strong> timer</div>
+        </div>
+        <div class="ra">→</div>
+
+        <!-- Diamond: Drowsy Duration > 1.5s? -->
+        <svg class="dmd" width="150" height="68" viewBox="0 0 110 70">
+          <polygon points="45,0 93,32 45,62 -4,32" fill="rgba(255,215,64,.08)" stroke="rgba(255,215,64,.6)" stroke-width="1.5"/>
+          <text x="45" y="24" text-anchor="middle" font-size="8" fill="#ffd740" font-family="monospace">Step 7</text>
+          <text x="45" y="34" text-anchor="middle" font-size="9" fill="#ffd740" font-family="monospace">Decision Rule</text>
+          <text x="45" y="45" text-anchor="middle" font-size="8.5" fill="#ffd740" font-family="monospace">Drowsy&gt;1.5s?</text>
+        </svg>
+
+        <div class="col" style="gap:4px;margin-left:0">
+          <!-- YES → Step 8 ALERT -->
+          <div class="row" style="align-items:center">
+            <div class="ra" style="font-size:11px">YES→</div>
+            <div class="bx sr" style="width:150px">
+              <div class="n" style="color:rgba(255,61,61,.55)">STEP 8</div>
+              <div class="t" style="font-size:11px">🔔 TRIGGER ALERT!</div>
+              <div class="d">Play Beep Sound<br>Show Alert Overlay on frame</div>
+            </div>
+          </div>
+          <!-- NO → Step 9 Display -->
+          <div class="row" style="align-items:center">
+            <div class="ra r" style="font-size:11px">NO→</div>
+            <div class="bx so" style="width:150px">
+              <div class="n" style="color:rgba(255,140,66,.55)">STEP 9 · Normal Frame</div>
+              <div class="t" style="font-size:10px">📊 Display Progress</div>
+              <div class="d">Draw Boxes · Show<br>'drowsy_since' Timer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NO branch: Step 10 Reset -->
+      <div class="row" style="align-items:center;gap:6px">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--red);flex-shrink:0">NO ↓</div>
+        <div class="bx sr" style="flex:1;max-width:280px">
+          <div class="n" style="color:rgba(255,61,61,.55)">STEP 10</div>
+          <div class="t" style="font-size:10px">Reset Temporal Tracker</div>
+          <div class="d"><strong style="color:var(--red)">'drowsy_since'</strong> = None · Counter reset to zero</div>
+        </div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--tm);max-width:200px;line-height:1.5">← Back to frame loop:<br>Continue detecting next frame</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ZONE 3: Explainability Branch — Steps 11→13 ═══ -->
+<div class="zone zone-y">
+  <div class="zone-lbl y">🔬 &nbsp;Explainability Branch (Optional Analysis) &nbsp;·&nbsp; gradcam.py</div>
+  <div class="row" style="align-items:stretch;gap:0">
+
+    <div class="bx sy" style="flex:1.1">
+      <div class="n" style="color:rgba(255,215,64,.55)">STEP 11</div>
+      <div class="t">Targeted Grad-CAM Analysis</div>
+      <div class="d">Layer: <strong style="color:var(--yellow)">15 P3 Head</strong><br>Input: Target Class · Feature Map<br>Compute: Target Class Gradients</div>
+    </div>
+    <div class="ra y">→</div>
+
+    <div class="bx sy" style="flex:1">
+      <div class="n" style="color:rgba(255,215,64,.55)">STEP 12</div>
+      <div class="t">Generate Saliency Heatmap</div>
+      <div class="d">Normalize gradient values<br>Apply Color Map (jet)<br>Blend heatmap onto frame</div>
+    </div>
+    <div class="ra y">→</div>
+
+    <div class="bx sy" style="flex:1">
+      <div class="n" style="color:rgba(255,215,64,.55)">STEP 13 · Result</div>
+      <div class="t">Grad-CAM Result Output</div>
+      <div class="d">Side-by-side: Detection vs Heatmap<br>Explains model focus on:<br><strong style="color:var(--yellow)">closed_eyes / yawn features</strong></div>
+    </div>
+    <div class="ra y">→</div>
+
+    <!-- Visual heatmap preview -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:center;flex-shrink:0;width:160px">
+      <div style="background:#020a04;border:1px solid rgba(255,215,64,.25);padding:6px;text-align:center">
+        <svg viewBox="0 0 64 50" width="100%">
+          <rect x="1" y="1" width="62" height="48" fill="#030f05" stroke="none"/>
+          <ellipse cx="32" cy="25" rx="20" ry="16" fill="none" stroke="#2a4a2a" stroke-width="1"/>
+          <rect x="14" y="17" width="12" height="8" rx="1" fill="none" stroke="#00ff6a" stroke-width="1.5"/>
+          <rect x="38" y="17" width="12" height="8" rx="1" fill="none" stroke="#00ff6a" stroke-width="1.5"/>
+        </svg>
+        <div style="font-family:var(--mono);font-size:7px;color:var(--tm);margin-top:3px">Detection</div>
+      </div>
+      <div style="background:#020a04;border:1px solid rgba(255,215,64,.25);padding:6px;text-align:center">
+        <svg viewBox="0 0 64 50" width="100%">
+          <rect x="1" y="1" width="62" height="48" fill="#030f05" stroke="none"/>
+          <ellipse cx="32" cy="25" rx="20" ry="16" fill="rgba(200,60,0,.15)" stroke="#1a1a05" stroke-width="1"/>
+          <ellipse cx="20" cy="20" rx="9" ry="6" fill="rgba(255,30,0,.5)"/>
+          <ellipse cx="44" cy="20" rx="9" ry="6" fill="rgba(255,30,0,.5)"/>
+          <ellipse cx="20" cy="20" rx="4" ry="3" fill="rgba(255,200,0,.8)"/>
+          <ellipse cx="44" cy="20" rx="4" ry="3" fill="rgba(255,200,0,.8)"/>
+          <ellipse cx="32" cy="33" rx="10" ry="4" fill="rgba(255,80,0,.35)"/>
+        </svg>
+        <div style="font-family:var(--mono);font-size:7px;color:var(--yellow);margin-top:3px">Heatmap</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>METHODOLOGY — FULL PIPELINE DIAGRAM</span><span>04 / 08</span></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SLIDE 4 — METHODOLOGY B: YOLOv8n ARCHITECTURE FLOW (Pipeline_Dom2)
+═══════════════════════════════════════════════════════════════ -->
+<section class="slide" id="s3b">
+<style>
+/* arch slide styles */
+.A{font-family:var(--mono)}
+.col-hd{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;text-align:center;padding:6px 8px;margin-bottom:6px}
+.col-hd.c1{color:#4fc3f7;background:rgba(79,195,247,.07);border:1px solid rgba(79,195,247,.3)}
+.col-hd.c2{color:var(--g);background:rgba(0,255,106,.06);border:1px solid rgba(0,255,106,.3)}
+.col-hd.c3{color:var(--td);background:var(--card);border:1px solid var(--border)}
+.col-hd.c4{color:var(--yellow);background:rgba(255,215,64,.06);border:1px solid rgba(255,215,64,.3)}
+.ab2{font-family:var(--mono);border:1px solid var(--border);background:var(--card);padding:8px 10px;font-size:10px;color:var(--td);line-height:1.5;text-align:center;margin-bottom:5px}
+.ab2 .n{font-size:8px;color:var(--tm);margin-bottom:3px}
+.ab2 .t{font-size:11px;font-weight:700;color:var(--t)}
+.ab2 .d{font-size:9px;color:var(--tm);margin-top:3px}
+.ab2.c1{border-color:rgba(79,195,247,.4);background:rgba(79,195,247,.06)}.ab2.c1 .t{color:#4fc3f7}
+.ab2.c2{border-color:rgba(0,255,106,.4);background:rgba(0,255,106,.06)}.ab2.c2 .t{color:var(--g)}
+.ab2.c2s{border:2px solid rgba(0,255,106,.7);background:rgba(0,255,106,.08);position:relative}.ab2.c2s .t{color:var(--g)}
+.ab2.c3{border-color:rgba(255,215,64,.5);background:rgba(255,215,64,.07);position:relative}.ab2.c3 .t{color:var(--yellow)}
+.ab2.c4{border-color:rgba(255,215,64,.4);background:rgba(255,215,64,.05)}.ab2.c4 .t{color:var(--yellow)}
+.ab2.c5{border-color:rgba(79,195,247,.3);background:rgba(79,195,247,.04)}.ab2.c5 .t{color:#4fc3f7}
+.ab2.c6{border-color:rgba(255,140,66,.3);background:rgba(255,140,66,.04)}.ab2.c6 .t{color:var(--orange)}
+.da2{color:var(--g);font-size:13px;text-align:center;margin:3px 0;font-family:var(--mono)}
+.da2.y{color:var(--yellow)}
+.da2.b{color:#4fc3f7}
+.star-lbl{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:7px;background:var(--bg);padding:0 4px;white-space:nowrap;letter-spacing:.07em}
+.arch-main{display:grid;grid-template-columns:1fr 1fr 1.1fr 1.1fr;gap:10px;height:calc(100vh - 185px)}
+.arch-col{display:flex;flex-direction:column}
+.sppf-box{font-family:var(--mono);font-size:10px;background:rgba(255,140,66,.1);border:2px solid rgba(255,140,66,.6);color:var(--orange);text-align:center;padding:8px;font-weight:700;margin-top:auto}
+</style>
+
+<div class="stag">Methodology 3B — YOLOv8n Architecture <span class="snum">05 / 08</span></div>
+<h2 style="font-size:1.55rem;margin-bottom:8px">YOLOv8n Architecture Flow · <span class="acc">Custom Class-Targeted · Driver Drowsiness</span></h2>
+
+<div class="arch-main">
+
+  <!-- ═══ COLUMN 1: CSPDarknet Backbone ═══ -->
+  <div class="arch-col">
+    <div class="col-hd c1">CSPDarknet Backbone<br><span style="font-size:7px;color:var(--tm);letter-spacing:0">(Feature Extraction, Downsampling)</span></div>
+
+    <!-- Input image -->
+    <div class="ab2" style="border-color:rgba(79,195,247,.5);background:rgba(79,195,247,.08)">
+      <div class="n">INPUT IMAGE</div>
+      <div class="t" style="color:#4fc3f7;font-size:14px">640×640×3</div>
+      <div class="d">RGB tensor from webcam frame</div>
+    </div>
+    <div class="da2 b">↓</div>
+
+    <!-- P5 -->
+    <div class="ab2 c1">
+      <div class="n">CONV, C2F BLOCK</div>
+      <div class="t">P5 level (20×20)</div>
+      <div class="d">High-level semantic features<br>Global object understanding<br>Coarse spatial resolution</div>
+    </div>
+    <div class="da2 b">↓</div>
+
+    <!-- P4 -->
+    <div class="ab2 c1">
+      <div class="n">CONV, C2F BLOCK</div>
+      <div class="t">P4 level (40×40)</div>
+      <div class="d">Mid-level abstraction<br>Shape & part detection<br>Medium spatial resolution</div>
+    </div>
+    <div class="da2" style="color:var(--g)">↓</div>
+
+    <!-- P3 — CRUCIAL / GRAD-CAM TARGET -->
+    <div class="ab2 c2s">
+      <span class="star-lbl" style="color:var(--g)">★ GRAD-CAM INPUT · LAYER 15</span>
+      <div class="n" style="color:rgba(0,255,106,.6)">CONV, C2F BLOCK · CRUCIAL</div>
+      <div class="t" style="font-size:12px">P3 level (80×80)</div>
+      <div class="d" style="color:rgba(0,255,106,.7)">Fine-grained eye & facial detail<br>High spatial resolution<br>→ Feature map to Grad-CAM</div>
+    </div>
+    <div class="da2 b">↓</div>
+
+    <!-- P2 -->
+    <div class="ab2 c1">
+      <div class="n">CONV, C2F BLOCK</div>
+      <div class="t">P2 level (80×80)</div>
+      <div class="d">Low-level edge features<br>Texture and gradient info</div>
+    </div>
+    <div class="da2 b">↓</div>
+
+    <!-- SPPF -->
+    <div class="sppf-box">
+      SPPF<br>
+      <span style="font-size:8px;color:rgba(255,140,66,.7);font-weight:400">Spatial Pyramid Pooling Fast<br>Multi-scale context fusion</span>
+    </div>
+  </div>
+
+  <!-- ═══ COLUMN 2: PANet Neck ═══ -->
+  <div class="arch-col">
+    <div class="col-hd c2">PANet Neck<br><span style="font-size:7px;color:var(--tm);letter-spacing:0">(Top-Down &amp; Bottom-Up Fusion)</span></div>
+
+    <div style="font-family:var(--mono);font-size:9px;color:var(--tm);text-align:center;padding:8px 0;border:1px dashed rgba(0,255,106,.15);margin-bottom:6px">
+      ← Multi-scale feature maps<br>received from Backbone →<br>
+      <span style="color:var(--g);font-size:8px">Top-Down path then Bottom-Up path</span>
+    </div>
+
+    <!-- P5 fusion -->
+    <div class="ab2 c2">
+      <div class="n">TOP-DOWN PATH</div>
+      <div class="t">P5 (20×20)</div>
+      <div class="d">Fusion (C2f module)<br>Low-res · high semantics<br>Global context features</div>
+    </div>
+    <div class="da2">↓ ↑</div>
+
+    <!-- P4 fusion -->
+    <div class="ab2 c2">
+      <div class="n">TOP-DOWN + BOTTOM-UP</div>
+      <div class="t">P4 (40×40)</div>
+      <div class="d">Fusion (C2f module)<br>Mid-res · balanced<br>Intermediate features</div>
+    </div>
+    <div class="da2 y">↓ ↑</div>
+
+    <!-- P3 fusion — LAYER 15 -->
+    <div class="ab2 c3">
+      <span class="star-lbl" style="color:var(--yellow)">★ LAYER 15 P3 HEAD · KEY FEATURE</span>
+      <div class="n" style="color:rgba(255,215,64,.6)">BOTTOM-UP PATH · CRUCIAL</div>
+      <div class="t" style="font-size:12px">P3 (80×80)</div>
+      <div class="d" style="color:rgba(255,215,64,.7)">Fusion (C2f module)<br>High-res · fine spatial detail<br>→ Grad-CAM feature input<br>→ eye / yawn focus region</div>
+    </div>
+    <div class="da2 y" style="margin-top:auto">↓</div>
+
+    <div style="font-family:var(--mono);font-size:9px;color:var(--tm);text-align:center;padding:8px 0;border:1px dashed rgba(0,255,106,.12);margin-top:4px">
+      Feature maps from all<br>3 scales → Detection Heads →
+    </div>
+  </div>
+
+  <!-- ═══ COLUMN 3: Detection Heads ═══ -->
+  <div class="arch-col">
+    <div class="col-hd c3">Detection Heads<br><span style="font-size:7px;color:var(--tm);letter-spacing:0">(Decoupled Architecture)</span></div>
+
+    <!-- 5 custom classes -->
+    <div style="background:var(--card);border:1px solid var(--border);padding:8px 10px;font-family:var(--mono);font-size:9px;margin-bottom:6px">
+      <div style="color:var(--tm);letter-spacing:.1em;font-size:8px;margin-bottom:6px">5 CUSTOM CLASSES:</div>
+      <div style="display:flex;flex-direction:column;gap:3px;font-size:10px">
+        <span style="color:var(--red)">● closed_eyes &nbsp;<span style="color:var(--tm);font-size:8px">→ DROWSY_KEYWORD</span></span>
+        <span style="color:var(--yellow)">● yawn &nbsp;<span style="color:var(--tm);font-size:8px">→ DROWSY_KEYWORD</span></span>
+        <span style="color:var(--g)">● open_eyes &nbsp;<span style="color:var(--tm);font-size:8px">→ ALERT_KEYWORD</span></span>
+        <span style="color:#4fc3f7">● awake &nbsp;<span style="color:var(--tm);font-size:8px">→ ALERT_KEYWORD</span></span>
+        <span style="color:var(--orange)">● drowsy &nbsp;<span style="color:var(--tm);font-size:8px">→ DROWSY_KEYWORD</span></span>
+      </div>
+    </div>
+
+    <!-- P3 Head — starred -->
+    <div class="ab2 c3" style="margin-bottom:5px">
+      <span class="star-lbl" style="color:var(--yellow)">★ P3 Head (80×80) — FINE DETAIL</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px">
+        <div class="ab2" style="margin-bottom:0;padding:6px;font-size:9px;border-color:rgba(255,215,64,.3)">Classification<br>Head<br><span style="font-size:8px;color:var(--tm)">Class scores</span></div>
+        <div class="ab2" style="margin-bottom:0;padding:6px;font-size:9px;border-color:rgba(255,215,64,.3)">Bounding<br>Box Head<br><span style="font-size:8px;color:var(--tm)">x,y,w,h</span></div>
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(255,215,64,.6);margin-top:4px">Small objects · High-res eye region</div>
+    </div>
+
+    <!-- P4 Head -->
+    <div class="ab2 c2" style="margin-bottom:5px">
+      <div class="n" style="color:rgba(0,255,106,.5)">P4 Head (40×40)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div class="ab2" style="margin-bottom:0;padding:5px;font-size:9px">Classification<br>Head</div>
+        <div class="ab2" style="margin-bottom:0;padding:5px;font-size:9px">Bounding<br>Box Head</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(0,255,106,.5);margin-top:4px">Medium-res · face-level features</div>
+    </div>
+
+    <!-- P5 Head -->
+    <div class="ab2 c5">
+      <div class="n" style="color:rgba(79,195,247,.5)">P5 Head (20×20)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px">
+        <div class="ab2" style="margin-bottom:0;padding:5px;font-size:9px">Classification<br>Head</div>
+        <div class="ab2" style="margin-bottom:0;padding:5px;font-size:9px">Bounding<br>Box Head</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:8px;color:rgba(79,195,247,.5);margin-top:4px">Low-res · large-scale context</div>
+    </div>
+  </div>
+
+  <!-- ═══ COLUMN 4: Grad-CAM + Results ═══ -->
+  <div class="arch-col">
+    <div class="col-hd c4">Grad-CAM Integration<br><span style="font-size:7px;color:var(--tm);letter-spacing:0">(from gradcam.py · Optional Explainability)</span></div>
+
+    <!-- Grad-CAM Branch inputs -->
+    <div style="background:rgba(255,215,64,.05);border:1px solid rgba(255,215,64,.35);padding:10px;font-family:var(--mono);margin-bottom:6px">
+      <div style="font-size:8px;color:rgba(255,215,64,.6);letter-spacing:.1em;margin-bottom:8px">GRAD-CAM BRANCH · INPUTS</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:10px">
+        <div style="display:flex;align-items:flex-start;gap:6px">
+          <span style="color:var(--yellow);flex-shrink:0">→</span>
+          <div><span style="color:var(--yellow)">Feature Map</span><br><span style="font-size:8px;color:var(--tm)">(from Layer 15 P3 Head)<br>Shape: [1, C, 80, 80]</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:6px">
+          <span style="color:var(--yellow);flex-shrink:0">→</span>
+          <div><span style="color:var(--yellow)">Target Class Index</span><br><span style="font-size:8px;color:var(--tm)">(e.g. 0 = closed_eyes)<br>Selected by user / auto</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:6px">
+          <span style="color:var(--yellow);flex-shrink:0">→</span>
+          <div><span style="color:var(--yellow)">Target Class Gradients</span><br><span style="font-size:8px;color:var(--tm)">Backpropagated gradient<br>w.r.t. feature map</span></div>
+        </div>
+      </div>
+      <div style="text-align:center;color:var(--yellow);font-size:14px;margin-top:8px">↓</div>
+      <div style="text-align:center;font-family:var(--mono);font-size:10px;color:var(--yellow);margin-top:4px;padding:6px;border:1px solid rgba(255,215,64,.25);background:rgba(255,215,64,.04)">
+        Generate Saliency Heatmap<br><span style="font-size:8px;color:var(--tm)">Normalize · Apply Color Map (jet)</span>
+      </div>
+    </div>
+
+    <!-- Result Main -->
+    <div style="background:var(--card);border:1px solid var(--border);padding:8px;margin-bottom:6px">
+      <div style="font-family:var(--mono);font-size:8px;color:var(--g);letter-spacing:.1em;margin-bottom:6px">RESULT (MAIN) · Final Prediction Output</div>
+      <svg viewBox="0 0 200 90" width="100%" style="display:block;background:#020a04;border:1px solid var(--border)">
+        <rect x="0" y="0" width="200" height="90" fill="#020a04"/>
+        <ellipse cx="100" cy="50" rx="55" ry="38" fill="none" stroke="#1a3a1a" stroke-width="1"/>
+        <rect x="62" y="33" width="28" height="16" rx="2" fill="none" stroke="#00ff6a" stroke-width="1.5"/>
+        <rect x="110" y="33" width="28" height="16" rx="2" fill="none" stroke="#00ff6a" stroke-width="1.5"/>
+        <rect x="74" y="60" width="52" height="10" rx="1" fill="none" stroke="#ffd740" stroke-width="1"/>
+        <rect x="45" y="5" width="110" height="18" fill="rgba(0,255,106,.15)" rx="1"/>
+        <text x="100" y="18" text-anchor="middle" font-size="9" fill="#00ff6a" font-family="monospace">DROWSY · yawn · conf=0.87</text>
+        <text x="100" y="80" text-anchor="middle" font-size="7" fill="#3d5e44" font-family="monospace">Bounding box + label overlay</text>
+      </svg>
+    </div>
+
+    <!-- Result Heatmap -->
+    <div style="background:rgba(255,215,64,.04);border:1px solid rgba(255,215,64,.3);padding:8px">
+      <div style="font-family:var(--mono);font-size:8px;color:var(--yellow);letter-spacing:.1em;margin-bottom:6px">RESULT (EXPLAINABILITY) · Grad-CAM Heatmap</div>
+      <svg viewBox="0 0 200 90" width="100%" style="display:block;background:#020a04;border:1px solid rgba(255,215,64,.2)">
+        <rect x="0" y="0" width="200" height="90" fill="#020a04"/>
+        <ellipse cx="100" cy="50" rx="55" ry="38" fill="rgba(200,60,0,.12)" stroke="#1a1805" stroke-width="1"/>
+        <ellipse cx="75" cy="40" rx="22" ry="14" fill="rgba(255,30,0,.5)" opacity=".8"/>
+        <ellipse cx="125" cy="40" rx="22" ry="14" fill="rgba(255,30,0,.5)" opacity=".8"/>
+        <ellipse cx="75" cy="40" rx="10" ry="6" fill="rgba(255,200,0,.85)"/>
+        <ellipse cx="125" cy="40" rx="10" ry="6" fill="rgba(255,200,0,.85)"/>
+        <ellipse cx="100" cy="62" rx="25" ry="9" fill="rgba(255,80,0,.4)" opacity=".7"/>
+        <text x="100" y="85" text-anchor="middle" font-size="7" fill="#5a4a00" font-family="monospace">Red hotspot = model focus on eye/yawn region</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>METHODOLOGY — YOLOv8n ARCHITECTURE FLOW</span><span>05 / 08</span></div>
 </section>
 
 <!-- ══════════ SLIDE 4: RESULTS ══════════ -->
