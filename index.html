@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Drowsiness Detection — Pitch Deck</title>
@@ -216,7 +217,7 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
 <!-- ARROWS -->
 <div id="arr-prev" onclick="go(-1)">←</div>
 <div id="arr-next" onclick="go(1)">→</div>
-<div id="slide-num">01 / 07</div>
+<div id="slide-num">01 / 08</div>
 
 <div id="deck">
 
@@ -249,12 +250,12 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
 <span class="ck">image</span> 1/1081: 640x640  <span class="cs">1 Eyeclosed</span>  <span class="cv">84.3ms</span>
 <span class="ck">image</span> 2/1081: 640x640  <span class="cs">1 Eyeopen</span>   <span class="cv">83.7ms</span>
 <span class="ck">if</span> closed_frames >= <span class="cv">3</span>: <span class="ca">ALERT: Drowsiness! 🔔</span></div>
-  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>USE ← → ARROWS OR KEYBOARD TO NAVIGATE</span><span>01 / 07</span></div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
 </section>
 
 <!-- ══════════ SLIDE 1: PROBLEM ══════════ -->
 <section class="slide" id="s1">
-  <div class="stag">Problem Statement <span class="snum">01 / 06</span></div>
+  <div class="stag">Problem Statement </div>
   <div class="g12">
     <div>
       <h2>Driver fatigue is a<br><span class="acc">silent killer.</span></h2>
@@ -303,12 +304,12 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
       <p style="font-family:var(--mono);font-size:9px;color:var(--tm);margin-top:6px">// Simplified visualization · not real road footage</p>
     </div>
   </div>
-  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>PROBLEM</span><span>02 / 07</span></div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
 </section>
 
 <!-- ══════════ SLIDE 2: DATASET ══════════ -->
 <section class="slide" id="s2">
-  <div class="stag">Dataset <span class="snum">02 / 06</span></div>
+  <div class="stag">Dataset</div>
   <h2>1,081 labeled frames.<br><span class="acc">Binary ground truth.</span></h2>
   <div class="g12" style="margin-top:16px">
     <div>
@@ -324,64 +325,39 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
 <span class="cv">0</span>  0.512  0.481  0.234  0.178  <span class="cc"># Eyeclosed</span>
 <span class="cv">1</span>  0.488  0.476  0.241  0.182  <span class="cc"># Eyeopen</span></div>
       </div>
-      <div class="card">
-        <h3>Class Distribution</h3>
-        <div class="mb" style="margin-top:8px">
-          <div class="mb-h"><span class="mb-l">Eyeopen (class 1)</span><span class="mb-v">~55%</span></div>
-          <div class="mb-bg"><div class="mb-f" data-w="55"></div></div>
-        </div>
-        <div class="mb">
-          <div class="mb-h"><span class="mb-l">Eyeclosed (class 0)</span><span class="mb-v">~45%</span></div>
-          <div class="mb-bg"><div class="mb-f" data-w="45"></div></div>
-        </div>
-        <p style="font-size:11px;color:var(--tm);margin-top:8px;font-family:var(--mono)">Varied lighting · angles · distances · augmentation applied</p>
-      </div>
+      <p style="font-size:13px;color:var(--tm);line-height:1.5">
+        Labels are structured as normalized coordinate floating bounding maps. Center offsets (\(c_x, c_y\)) and spatial box boundaries (\(w, h\)) adapt consistently to scale transformations.
+      </p>
     </div>
-    <!-- eye visual comparison -->
-    <div>
-      <h3 style="margin-bottom:10px">Eye State Comparison</h3>
-      <div class="g2" style="margin-bottom:12px">
-        <div style="background:#030a05;border:1px solid var(--border);padding:18px;text-align:center">
-          <svg viewBox="0 0 110 55" width="100%" style="max-width:130px">
-            <ellipse cx="55" cy="27" rx="44" ry="20" fill="none" stroke="#1a3a1e" stroke-width="1.5"/>
-            <ellipse cx="55" cy="27" rx="14" ry="14" fill="#111e12" stroke="var(--g)" stroke-width="1"/>
-            <circle cx="55" cy="27" r="7" fill="#080e08"/>
-            <circle cx="58" cy="23" r="2.5" fill="white" opacity=".7"/>
-            <path d="M11 27 Q55 7 99 27" fill="none" stroke="#2a5a2e" stroke-width="1.5"/>
-            <path d="M11 27 Q55 47 99 27" fill="none" stroke="#2a5a2e" stroke-width="1.5"/>
-          </svg>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--g);margin-top:8px;letter-spacing:.1em">EYEOPEN</div>
-          <div style="font-family:var(--mono);font-size:8px;color:var(--tm)">Class 1 · Safe</div>
+
+    <div class="g2" style="gap:14px">
+      
+      <div style="background:#0a0303; border:1px solid #2a1515; padding:16px; text-align:center; display:flex; flex-direction:column; justify-content:space-between; border-radius:6px;">
+        <div style="width:100%; height:140px; overflow:hidden; border-radius:4px; margin-bottom:8px; border:1px solid #3a1a1a;">
+          <img src="assets/fail.jpeg" alt="Close Eyes (Fail)" style="width:100%; height:100%; object-fit:cover;" />
         </div>
-        <div style="background:#0a0303;border:1px solid #2a1515;padding:18px;text-align:center">
-          <svg viewBox="0 0 110 55" width="100%" style="max-width:130px">
-            <ellipse cx="55" cy="27" rx="44" ry="20" fill="none" stroke="#3a1a1a" stroke-width="1.5"/>
-            <path d="M11 27 Q55 17 99 27" fill="#0d0606" stroke="#3a1818" stroke-width="2"/>
-            <path d="M11 27 Q55 37 99 27" fill="none" stroke="#3a1818" stroke-width="1.5"/>
-            <line x1="14" y1="26" x2="96" y2="28" stroke="var(--red)" stroke-width="2.5" opacity=".85"/>
-          </svg>
-          <div style="font-family:var(--mono);font-size:9px;color:var(--red);margin-top:8px;letter-spacing:.1em">EYECLOSED</div>
-          <div style="font-family:var(--mono);font-size:8px;color:var(--tm)">Class 0 · ⚠ Alert</div>
+        <div>
+          <div style="font-family:var(--mono); font-size:11px; color:var(--red); letter-spacing:.1em; font-weight:bold;">EYECLOSED (FAIL)</div>
+          <div style="font-family:var(--mono); font-size:9px; color:var(--tm); margin-top:2px;">Class 0 · Threat Target</div>
         </div>
       </div>
-      <div class="code" data-l="DETECTION STRUCT">
-<span class="ck">Detection</span> {
-  bbox:  [x, y, w, h],   <span class="cc">// normalized coords</span>
-  conf:  <span class="cv">0.943</span>,          <span class="cc">// 0-1 confidence</span>
-  class: <span class="cv">0</span>,              <span class="cc">// 0=Closed, 1=Open</span>
-  <span class="ca">→ increment closed_counter</span>
-}</div>
+
+      <div style="background:#030604; border:1px solid #142518; padding:16px; text-align:center; display:flex; flex-direction:column; justify-content:space-between; border-radius:6px;">
+        <div style="width:100%; height:140px; overflow:hidden; border-radius:4px; margin-bottom:8px; border:1px solid #183520;">
+          <img src="assets/active.jpeg" alt="Open Eyes (Active)" style="width:100%; height:100%; object-fit:cover;" />
+        </div>
+        <div>
+          <div style="font-family:var(--mono); font-size:11px; color:var(--green); letter-spacing:.1em; font-weight:bold;">EYEOPEN (ACTIVE)</div>
+          <div style="font-family:var(--mono); font-size:9px; color:var(--tm); margin-top:2px;">Class 1 · Safe State</div>
+        </div>
+      </div>
+      
     </div>
   </div>
-  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>DATASET</span><span>03 / 07</span></div>
 </section>
 
-<!-- ══════════════════════════════════════════════════════
-     SLIDE 3a — METHODOLOGY: FULL PIPELINE DIAGRAM
-     Based on Pipeline_Dom1.jpg
-══════════════════════════════════════════════════════ -->
 <!-- ═══════════════════════════════════════════════════════════════
-     SLIDE 3 — METHODOLOGY A: FULL PIPELINE DIAGRAM (Pipeline_Dom1)
+     SLIDE 3 — METHODOLOGY A: FULL PIPELINE DIAGRAM 
 ═══════════════════════════════════════════════════════════════ -->
 <section class="slide" id="s3">
 <style>
@@ -578,22 +554,23 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
     <!-- Visual heatmap preview -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:center;flex-shrink:0;width:160px">
       <div style="background:#020a04;border:1px solid rgba(255,215,64,.25);padding:6px;text-align:center">
-        <svg viewBox="0 0 64 50" width="100%">
-          <rect x="1" y="1" width="62" height="48" fill="#030f05" stroke="none"/>
-          <ellipse cx="32" cy="25" rx="20" ry="16" fill="none" stroke="#2a4a2a" stroke-width="1"/>
-          <rect x="14" y="17" width="12" height="8" rx="1" fill="none" stroke="#00ff6a" stroke-width="1.5"/>
-          <rect x="38" y="17" width="12" height="8" rx="1" fill="none" stroke="#00ff6a" stroke-width="1.5"/>
+        <svg viewBox="0 0 300 80" width="100%">
+          <img src="assets/detection.png" alt="detection" style="width:100%; height:70%; object-fit:cover;" />
         </svg>
         <div style="font-family:var(--mono);font-size:7px;color:var(--tm);margin-top:3px">Detection</div>
       </div>
       <div style="background:#020a04;border:1px solid rgba(255,215,64,.25);padding:6px;text-align:center">
-        <svg viewBox="0 0 64 50" width="100%">
-          <rect x="1" y="1" width="62" height="48" fill="#030f05" stroke="none"/>
-          <ellipse cx="32" cy="25" rx="20" ry="16" fill="rgba(200,60,0,.15)" stroke="#1a1a05" stroke-width="1"/>
-          <ellipse cx="20" cy="20" rx="9" ry="6" fill="rgba(255,30,0,.5)"/>
-          <ellipse cx="44" cy="20" rx="9" ry="6" fill="rgba(255,30,0,.5)"/>
-          <ellipse cx="20" cy="20" rx="4" ry="3" fill="rgba(255,200,0,.8)"/>
-          <ellipse cx="44" cy="20" rx="4" ry="3" fill="rgba(255,200,0,.8)"/>
+        <svg viewBox="0 0 300 80" width="100%">
+          <img src="assets/heatmap.png" alt="heatmap" style="width:100%; height:70%; object-fit:cover;" />
+        </svg>
+        <div style="font-family:var(--mono);font-size:7px;color:var(--yellow);margin-top:3px">Heatmap</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
+</section>
           <ellipse cx="32" cy="33" rx="10" ry="4" fill="rgba(255,80,0,.35)"/>
         </svg>
         <div style="font-family:var(--mono);font-size:7px;color:var(--yellow);margin-top:3px">Heatmap</div>
@@ -602,12 +579,12 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
   </div>
 </div>
 
-<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>METHODOLOGY — FULL PIPELINE DIAGRAM</span><span>04 / 08</span></div>
+<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════════════
      SLIDE 4 — METHODOLOGY B: YOLOv8n ARCHITECTURE FLOW (Pipeline_Dom2)
-═══════════════════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════════════ --> 
 <section class="slide" id="s3b">
 <style>
 /* arch slide styles */
@@ -839,12 +816,12 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
   </div>
 
 </div>
-<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>METHODOLOGY — YOLOv8n ARCHITECTURE FLOW</span><span>05 / 08</span></div>
+<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
 </section>
 
 <!-- ══════════ SLIDE 4: RESULTS ══════════ -->
 <section class="slide" id="s4">
-  <div class="stag">Results <span class="snum">04 / 06</span></div>
+  <div class="stag">Results</div>
   <h2>Strong accuracy.<br><span class="acc">Real-time speed.</span></h2>
   <div class="g3" style="margin:14px 0">
     <div class="stat"><div class="stn">~92%</div><div class="stl">mAP@0.5 validation</div></div>
@@ -892,85 +869,136 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
       </div>
     </div>
   </div>
-  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>RESULTS</span><span>05 / 07</span></div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
 </section>
 
 <!-- ══════════ SLIDE 5: LIVE DEMO ══════════ -->
 <section class="slide" id="s5">
-  <div class="stag">Live Demonstration <span class="snum">05 / 06</span></div>
-  <div class="g21" style="height:calc(100vh - 140px);gap:14px">
-    <!-- LEFT: webcam panel -->
-    <div style="display:flex;flex-direction:column;height:100%">
-      <h2 style="font-size:1.5rem;margin-bottom:8px;flex-shrink:0">Your webcam.<br><span class="acc">Real-time detection.</span></h2>
-      <div id="cam-wrap" style="flex:1;min-height:0">
-        <div id="cam-head">
-          <div class="bdot"></div>
-          <span>WEBCAM — LIVE EYE STATE DETECTION</span>
-          <span id="cam-mode" style="margin-left:auto;color:var(--tm)">SIMULATION MODE</span>
-        </div>
-        <div id="vid-wrap">
-          <video id="vid" autoplay muted playsinline></video>
-          <canvas id="cv"></canvas>
-          <div id="cstatus">👁 READY</div>
-          <div id="alert-b">🔔 DROWSINESS DETECTED — WAKE UP!</div>
-        </div>
-        <div id="cam-foot">
-          <div id="cam-stats">
-            <div class="ws"><span class="ws-v" id="ws-cls">—</span><span class="ws-l">Eye State</span></div>
-            <div class="ws"><span class="ws-v" id="ws-conf">—</span><span class="ws-l">Confidence</span></div>
-            <div class="ws"><span class="ws-v" id="ws-str">0</span><span class="ws-l">Closed Streak</span></div>
-            <div class="ws"><span class="ws-v" id="ws-ms">—</span><span class="ws-l">Latency</span></div>
-          </div>
-          <span id="ws-fr" style="font-family:var(--mono);font-size:9px;color:var(--tm)">frame 0000</span>
+<div class="stag">Live Demonstration</div>
+<h2 style="margin-bottom:14px">Demonstration · <span class="acc">Run directly in VSCode.</span></h2>
+
+<!-- ⚠ BIG NOTICE -->
+<div style="background:rgba(255,215,64,.08);border:2px solid rgba(255,215,64,.7);padding:16px 22px;display:flex;align-items:center;gap:16px;margin-bottom:18px">
+  <div style="font-size:2.2rem;flex-shrink:0">⚠️</div>
+  <div style="font-family:var(--mono)">
+    <div style="font-size:13px;color:var(--yellow);font-weight:700;letter-spacing:.07em;margin-bottom:5px">
+      LIVE DEMO — RUN IN VSCODE DIRECTLY
+    </div>
+    <div style="font-size:11px;color:rgba(255,215,64,.7);line-height:1.8">
+      This slide cannot execute PyTorch / YOLOv8n inside a browser.
+      Switch to <span style="color:var(--yellow);font-weight:700">VSCode</span> →
+      open the integrated terminal →
+      run <span style="color:var(--g);font-weight:700">python webcam.py</span>
+      to show the real-time drowsiness detection.
+    </div>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+  <!-- LEFT: Steps -->
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--tm);letter-spacing:.15em;text-transform:uppercase;margin-bottom:2px">— How to run the demo</div>
+
+    <!-- Step 1 -->
+    <div style="display:flex;gap:14px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--g)">
+      <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--g);line-height:1;flex-shrink:0">1</div>
+      <div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t);font-weight:700;margin-bottom:4px">Open Project in VSCode</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--tm);line-height:1.7">
+          <span style="color:var(--g)">File → Open Folder</span> → select your drowsiness project<br>
+          Or from any terminal: <span style="color:var(--g)">code .</span> inside the project directory
         </div>
       </div>
-      <button id="cam-btn" onclick="initCam()">▶ ENABLE WEBCAM + START DETECTION</button>
-      <p style="font-family:var(--mono);font-size:9px;color:var(--tm);margin-top:5px;flex-shrink:0">⚠ Camera stays local — no data sent anywhere. Runs fully in your browser.</p>
     </div>
 
-    <!-- RIGHT: guide + code -->
-    <div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;height:100%">
-      <div class="card">
-        <h3>How to test</h3>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--td);line-height:2.1;margin-top:6px">
-          1. Click <span class="acc">ENABLE WEBCAM</span> below<br>
-          2. Allow browser camera permission<br>
-          3. Face camera at normal distance<br>
-          4. <span class="yel">Close your eyes</span> for 3+ seconds<br>
-          5. Watch <span class="red">RED ALERT</span> trigger
+    <!-- Step 2 -->
+    <div style="display:flex;gap:14px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--g)">
+      <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--g);line-height:1;flex-shrink:0">2</div>
+      <div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t);font-weight:700;margin-bottom:4px">Open Integrated Terminal</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--tm);line-height:1.7">
+          Press <span style="color:var(--yellow);font-weight:700">Ctrl + `</span> (backtick) to open VSCode terminal<br>
+          Or: <span style="color:var(--g)">Terminal → New Terminal</span> from the menu bar
         </div>
       </div>
-      <div class="card">
-        <h3>Detection thresholds</h3>
-        <div class="mb" style="margin-top:6px">
-          <div class="mb-h"><span class="mb-l">Alert threshold (frames)</span><span class="mb-v">3</span></div>
-          <div class="mb-bg"><div style="height:100%;background:var(--red);width:30%"></div></div>
-        </div>
-        <div class="mb">
-          <div class="mb-h"><span class="mb-l">Confidence threshold</span><span class="mb-v">0.70</span></div>
-          <div class="mb-bg"><div style="height:100%;background:var(--g);width:70%"></div></div>
-        </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div style="display:flex;gap:14px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--g)">
+      <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--g);line-height:1;flex-shrink:0">3</div>
+      <div style="width:100%">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t);font-weight:700;margin-bottom:6px">Install Dependencies <span style="color:var(--tm);font-weight:400">(first time only)</span></div>
+        <div class="code" data-l="TERMINAL" style="font-size:10.5px">pip install ultralytics opencv-python
+pip install torch torchvision</div>
       </div>
-      <div class="code" data-l="BROWSER PIPELINE" style="font-size:10px">
-<span class="cc">// Full YOLOv8 needs Python server</span>
-<span class="cc">// Browser uses heuristic proxy:</span>
-<span class="ck">webcam</span> → canvas frame grab
-→ sample eye-region brightness
-→ classify: <span class="cs">Open</span> | <span class="ca">Closed</span>
-→ N-frame streak check
-→ <span class="ca">alert if closed_count ≥ 3</span></div>
-      <div class="card rl">
-        <h3 style="color:var(--red)">Full deployment note</h3>
-        <p style="font-size:11px">This demo uses browser heuristics. Full accuracy requires <span class="acc">Python + Ultralytics</span>. Run <code style="color:var(--g);font-size:10px">python detect_webcam.py --model best.pt</code> for real YOLOv8n inference.</p>
+    </div>
+
+    <!-- Step 4 — MAIN highlighted -->
+    <div style="display:flex;gap:14px;padding:14px 16px;background:rgba(0,255,106,.05);border:2px solid rgba(0,255,106,.55);border-left:4px solid var(--g)">
+      <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--g);line-height:1;flex-shrink:0">4</div>
+      <div style="width:100%">
+        <div style="font-family:var(--mono);font-size:12px;color:var(--g);font-weight:700;margin-bottom:6px">▶ Run Live Webcam Detection</div>
+        <div class="code" data-l="MAIN COMMAND" style="font-size:11px">
+<span class="cc"># Real YOLOv8n — run this in VSCode terminal</span>
+<span class="ck">python</span> webcam.py</div>
+      </div>
+    </div>
+
+    <!-- Step 5 optional -->
+    <div style="display:flex;gap:14px;padding:12px 14px;background:var(--card);border:1px solid rgba(255,215,64,.35);border-left:3px solid rgba(255,215,64,.6)">
+      <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--yellow);line-height:1;flex-shrink:0">5</div>
+      <div style="width:100%">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--yellow);font-weight:700;margin-bottom:6px">Optional — Grad-CAM Explainability</div>
+        <div class="code" data-l="OPTIONAL" style="font-size:10.5px">
+<span class="ck">python</span> gradcam.py</div>
       </div>
     </div>
   </div>
-  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>DEMONSTRATION</span><span>06 / 07</span></div>
+
+  <!-- RIGHT: Expected output + what audience sees -->
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="font-family:var(--mono);font-size:9px;color:var(--tm);letter-spacing:.15em;text-transform:uppercase;margin-bottom:2px">— What the audience will see</div>
+
+    <div class="code" data-l="EXPECTED TERMINAL OUTPUT" style="font-size:11px">
+<span class="cc"># After: python webcam.py</span>
+<span class="ck">Loading</span> model: <span class="cs">runs/train/weights/best.pt</span>
+<span class="ck">Model</span> loaded. Starting webcam...
+
+<span class="ck">Frame</span> 001: <span class="cs">open_eyes</span>  conf=<span class="cv">0.912</span> ✓
+<span class="ck">Frame</span> 002: <span class="cs">open_eyes</span>  conf=<span class="cv">0.908</span> ✓
+<span class="ck">Frame</span> 003: <span class="cs">closed_eyes</span> conf=<span class="cv">0.943</span> ⚠[1]
+<span class="ck">Frame</span> 004: <span class="cs">closed_eyes</span> conf=<span class="cv">0.931</span> ⚠[2]
+<span class="ck">Frame</span> 005: <span class="cs">closed_eyes</span> conf=<span class="cv">0.958</span> ⚠[3]
+<span class="ca">→ 🔔 DROWSINESS ALERT TRIGGERED!</span>
+<span class="ca">→ Beep sound · Alert overlay shown</span>
+<span class="ck">Frame</span> 006: <span class="cs">open_eyes</span>  conf=<span class="cv">0.887</span> ✓ cleared</div>
+
+    <div style="background:var(--card);border:1px solid var(--border);padding:14px 16px">
+      <div style="font-family:var(--mono);font-size:9px;color:var(--g);letter-spacing:.12em;margin-bottom:10px">LIVE WINDOW SHOWS:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-family:var(--mono);font-size:11px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:var(--g)">✓</span><span style="color:var(--td)">Webcam feed with <span style="color:var(--g)">real bounding boxes</span> on eyes</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:var(--g)">✓</span><span style="color:var(--td)">Labels: <span style="color:var(--g)">open_eyes</span> / <span style="color:var(--red)">closed_eyes</span> / <span style="color:var(--yellow)">yawn</span> / awake / drowsy</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:var(--g)">✓</span><span style="color:var(--td)">Confidence score + <span style="color:var(--g)">drowsy_since</span> timer per frame</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:var(--red)">🔔</span><span style="color:var(--td)"><span style="color:var(--red)">RED ALERT + beep</span> when drowsy duration &gt; 1.5 seconds</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><span style="color:var(--yellow)">✓</span><span style="color:var(--td)">Optional: <span style="color:var(--yellow)">Grad-CAM heatmap</span> on eyes/yawn region</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="stat" style="padding:12px 14px"><div class="stn" style="font-size:1.5rem">92%</div><div class="stl">mAP@0.5</div></div>
+      <div class="stat" style="padding:12px 14px"><div class="stn" style="font-size:1.5rem">84ms</div><div class="stl">Per frame</div></div>
+      <div class="stat" style="padding:12px 14px"><div class="stn" style="font-size:1.5rem">5</div><div class="stl">Custom classes</div></div>
+    </div>
+  </div>
+
+</div>
+<div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
 </section>
 
 <!-- ══════════ SLIDE 6: DISCUSSION ══════════ -->
 <section class="slide" id="s6">
-  <div class="stag">Discussion <span class="snum">06 / 06</span></div>
+  <div class="stag">Discussion</div>
   <h2>What we learned.<br><span class="acc">Where next.</span></h2>
   <div class="g2" style="margin-top:14px">
     <div>
@@ -993,7 +1021,7 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
       </p>
     </div>
   </div>
-  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span><span>DISCUSSION</span><span>07 / 07</span></div>
+  <div class="sf"><span>DROWSINESS DETECTION SYSTEM</span></div>
 </section>
 
 </div><!-- /deck -->
@@ -1299,3 +1327,6 @@ setTimeout(simFallbackStart, 200);
 </script>
 </body>
 </html>
+
+ 
+ 
