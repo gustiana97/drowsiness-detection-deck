@@ -554,15 +554,15 @@ p{font-size:14px;line-height:1.7;color:var(--td)}
     <!-- Visual heatmap preview -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;align-self:center;flex-shrink:0;width:160px">
       <div style="background:#020a04;border:1px solid rgba(255,215,64,.25);padding:6px;text-align:center">
-        <svg viewBox="0 0 300 80" width="100%">
+        <div style="width:100%; height:60px; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center;">
           <img src="assets/detection.png" alt="detection" style="width:100%; height:70%; object-fit:cover;" />
-        </svg>
+        </div>
         <div style="font-family:var(--mono);font-size:7px;color:var(--tm);margin-top:3px">Detection</div>
       </div>
       <div style="background:#020a04;border:1px solid rgba(255,215,64,.25);padding:6px;text-align:center">
-        <svg viewBox="0 0 300 80" width="100%">
+       <div style="width:100%; height:60px; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center;">
           <img src="assets/heatmap.png" alt="heatmap" style="width:100%; height:70%; object-fit:cover;" />
-        </svg>
+        </div>
         <div style="font-family:var(--mono);font-size:7px;color:var(--yellow);margin-top:3px">Heatmap</div>
       </div>
     </div>
